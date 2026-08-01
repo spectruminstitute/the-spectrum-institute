@@ -3144,7 +3144,8 @@
         }
 
         function beginEditCertificate(certRowId) {
-            const cert = adminCache.certificates.find((c) => c.id === certRowId);
+            const id = String(certRowId || "").trim();
+            const cert = adminCache.certificates.find((c) => c.id === id);
             if (!cert) {
                 showToast("⚠️ Certificate not found in the current roster.", "warning");
                 return;
@@ -3153,7 +3154,9 @@
             switchAdminTab("certificates");
             setEditingCertificateId(cert.id);
             selectedCertRenderId = cert.id;
-            certEditStateCertId = null;
+            // Drop any prior preview/edit canvas payload so the next Preview loads this row.
+            resetCertificatePreviewUi(cert.id);
+            closeCertificatePreviewModal();
 
             const idInput = document.getElementById("admCertId");
             if (idInput) {
@@ -3236,9 +3239,8 @@
                 const canRevoke = status === "active";
                 const expired = canRevoke && cert.expiry_date && String(cert.expiry_date).slice(0, 10) < getTodayDateKey();
                 const displayStatus = expired ? "expired" : status;
-                const safeId = escapeJsString(cert.id);
                 return `
-                    <tr>
+                    <tr data-cert-id="${escapeHtml(cert.id)}">
                         <td>${escapeHtml(cert.certificate_id)}</td>
                         <td>${escapeHtml(cert.student_name)}</td>
                         <td>${escapeHtml(cert.course_name)}</td>
@@ -3247,11 +3249,11 @@
                         <td>${escapeHtml(cert.grade || "—")}</td>
                         <td><span class="admin-status-pill ${escapeHtml(displayStatus)}">${escapeHtml(displayStatus)}</span></td>
                         <td>
-                            <button type="button" class="admin-action-btn" onclick="beginEditCertificate('${safeId}')">Edit</button>
-                            <button type="button" class="admin-action-btn" onclick="prepareCertificateRender('${safeId}')">Preview</button>
+                            <button type="button" class="admin-action-btn" data-cert-id="${escapeHtml(cert.id)}" data-cert-action="edit" onclick="beginEditCertificate(this.getAttribute('data-cert-id'))">Edit</button>
+                            <button type="button" class="admin-action-btn" data-cert-id="${escapeHtml(cert.id)}" data-cert-action="preview" onclick="prepareCertificateRender(this.getAttribute('data-cert-id'))">Preview</button>
                             ${canRevoke
-                                ? `<button type="button" class="admin-action-btn danger" onclick="handleAdminRevokeCertificate('${safeId}')">Revoke</button>`
-                                : `<button type="button" class="admin-action-btn" onclick="handleAdminRestoreCertificate('${safeId}')">Restore</button>`
+                                ? `<button type="button" class="admin-action-btn danger" data-cert-id="${escapeHtml(cert.id)}" onclick="handleAdminRevokeCertificate(this.getAttribute('data-cert-id'))">Revoke</button>`
+                                : `<button type="button" class="admin-action-btn" data-cert-id="${escapeHtml(cert.id)}" onclick="handleAdminRestoreCertificate(this.getAttribute('data-cert-id'))">Restore</button>`
                             }
                         </td>
                     </tr>
@@ -4258,6 +4260,8 @@
         let certLogoLoadPromise = null;
         let certMeasureCtx = null;
         let certOverlayResizeObserver = null;
+        /** Monotonic token so stale async preview renders cannot overwrite a newer open. */
+        let certPreviewOpenToken = 0;
 
         function createDefaultCertEditState() {
             return {
@@ -4308,9 +4312,9 @@
             return next;
         }
 
-        function ensureCertEditStateForCert(cert) {
+        function ensureCertEditStateForCert(cert, { forceReload = false } = {}) {
             if (!cert) return certEditState;
-            if (certEditStateCertId === cert.id) {
+            if (!forceReload && certEditStateCertId === cert.id) {
                 const formDate = document.getElementById("admCertIssueDate")?.value;
                 if (formDate) certEditState.issueDateText = formatCanvasDate(formDate);
                 return certEditState;
@@ -4340,6 +4344,43 @@
             next.credits = String(cert.grade || "").trim() || next.credits || "—";
             certEditState = next;
             return certEditState;
+        }
+
+        /** Wipe previous preview state, overlay DOM, and canvas before binding a new certificate. */
+        function resetCertificatePreviewUi(nextCertId = null) {
+            certEditStateCertId = null;
+            certEditState = createDefaultCertEditState();
+            certLastRenderedDataUrl = null;
+            if (nextCertId) selectedCertRenderId = nextCertId;
+
+            const stage = document.getElementById("certOverlayStage");
+            if (stage) {
+                stage.querySelectorAll(".cert-edit-field, #certNameUnderline, #certificate-preview, .cert-doc").forEach((el) => el.remove());
+                stage.hidden = true;
+            }
+
+            const previewImg = document.getElementById("certPreviewImage");
+            if (previewImg) {
+                previewImg.removeAttribute("src");
+                previewImg.src = "";
+            }
+
+            const placeholder = document.getElementById("certPreviewPlaceholder");
+            if (placeholder) {
+                placeholder.hidden = false;
+                placeholder.textContent = "Loading certificate preview…";
+            }
+
+            const canvas = document.getElementById("certWorkCanvas");
+            if (canvas) {
+                const ctx = canvas.getContext("2d");
+                if (ctx && canvas.width && canvas.height) {
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+                canvas.width = 0;
+                canvas.height = 0;
+            }
         }
 
         function ensureCertLogoLoaded() {
@@ -4548,22 +4589,31 @@
         }
 
         function prepareCertificateRender(certRowId) {
-            selectedCertRenderId = certRowId;
-            const cert = adminCache.certificates.find((c) => c.id === certRowId);
-            if (cert) {
-                const studentSelect = document.getElementById('admCertStudent');
-                if (studentSelect && cert.student_id) studentSelect.value = cert.student_id;
-                const fatherInput = document.getElementById('admCertFather');
-                if (fatherInput && cert.father_name) fatherInput.value = cert.father_name;
-                const issueInput = document.getElementById('admCertIssueDate');
-                if (issueInput) issueInput.value = toDateInputValue(cert.issue_date) || getLocalDateISO();
-                const gradeInput = document.getElementById('admCertGrade');
-                if (gradeInput && cert.grade) gradeInput.value = cert.grade;
-                const expiryInput = document.getElementById('admCertExpiry');
-                if (expiryInput) expiryInput.value = toDateInputValue(cert.expiry_date) || "";
-                // Force edit-state reload so canvas uses the synced table date.
-                certEditStateCertId = null;
+            const id = String(certRowId || "").trim();
+            if (!id) {
+                showToast("⚠️ Missing certificate id for preview.", "warning");
+                return;
             }
+            // Clear prior modal/canvas state before binding this row's payload.
+            resetCertificatePreviewUi(id);
+            const cert = adminCache.certificates.find((c) => c.id === id);
+            if (!cert) {
+                showToast("⚠️ Certificate not found in the current roster.", "warning");
+                return;
+            }
+            selectedCertRenderId = cert.id;
+            const studentSelect = document.getElementById('admCertStudent');
+            if (studentSelect && cert.student_id) studentSelect.value = cert.student_id;
+            const fatherInput = document.getElementById('admCertFather');
+            if (fatherInput) fatherInput.value = cert.father_name || "";
+            const issueInput = document.getElementById('admCertIssueDate');
+            if (issueInput) issueInput.value = toDateInputValue(cert.issue_date) || getLocalDateISO();
+            const gradeInput = document.getElementById('admCertGrade');
+            if (gradeInput) gradeInput.value = cert.grade || "";
+            const expiryInput = document.getElementById('admCertExpiry');
+            if (expiryInput) expiryInput.value = toDateInputValue(cert.expiry_date) || "";
+            const idInput = document.getElementById("admCertId");
+            if (idInput) idInput.value = String(cert.certificate_id || "").toUpperCase();
             switchAdminTab('certificates');
             openCertificatePreview();
         }
@@ -4572,6 +4622,11 @@
             if (selectedCertRenderId) {
                 const byId = adminCache.certificates.find((c) => c.id === selectedCertRenderId);
                 if (byId) return byId;
+            }
+            const editingId = getEditingCertificateId();
+            if (editingId) {
+                const byEdit = adminCache.certificates.find((c) => c.id === editingId);
+                if (byEdit) return byEdit;
             }
             const studentId = document.getElementById('admCertStudent')?.value;
             if (!studentId) return null;
@@ -5014,10 +5069,20 @@
             const canvas = document.getElementById('certWorkCanvas');
             if (!canvas) throw new Error("Certificate canvas not found.");
 
-            const editState = ensureCertEditStateForCert(cert);
-            // Capture live overlay edits (including static labels) before baking PDF/PNG.
-            syncCertEditStateFromOverlay();
-            Object.assign(editState, certEditState);
+            const editState = ensureCertEditStateForCert(cert, { forceReload: Boolean(options.forceReload) });
+            // Only pull live overlay edits when baking the SAME certificate currently shown.
+            // Syncing while switching records re-applies the previous cert's contenteditable text.
+            const stage = document.getElementById("certOverlayStage");
+            const overlayBoundToThisCert = Boolean(
+                stage
+                && !stage.hidden
+                && certEditStateCertId === cert.id
+                && stage.querySelector(".cert-edit-field")
+            );
+            if (options.syncOverlay !== false && overlayBoundToThisCert) {
+                syncCertEditStateFromOverlay();
+                Object.assign(editState, certEditState);
+            }
             const scale = options.scale || CERT_EXPORT_SCALE;
             const width = CERT_BASE_WIDTH;
             const height = CERT_BASE_HEIGHT;
@@ -5047,7 +5112,7 @@
         // strictly to back the live HTML overlay while the admin is editing —
         // keeps typing instant since we never need to redraw text on canvas
         // during keystrokes.
-        async function renderCertificateBackgroundOnly(cert, certType) {
+        async function renderCertificateBackgroundOnly(cert, certType, serialOverride) {
             await ensureExportLibraries();
             const scale = 2;
             const canvas = document.createElement("canvas");
@@ -5060,7 +5125,12 @@
             ctx.clearRect(0, 0, CERT_BASE_WIDTH, CERT_BASE_HEIGHT);
 
             await drawPremiumCertificateBackground(ctx, CERT_BASE_WIDTH, CERT_BASE_HEIGHT, cert, certType);
-            const qrSerial = String(certEditState.serialNo || cert.certificate_id || "").trim().toUpperCase();
+            const qrSerial = String(
+                serialOverride
+                || certEditState.serialNo
+                || cert.certificate_id
+                || ""
+            ).trim().toUpperCase();
             await drawCertificateQrBlock(ctx, CERT_BASE_WIDTH, CERT_BASE_HEIGHT, qrSerial);
             return canvas.toDataURL("image/png", 1.0);
         }
@@ -5262,12 +5332,12 @@
             certOverlayResizeObserver.observe(stage);
         }
 
-        function buildOrUpdateCertOverlayFields(editState) {
+        function buildOrUpdateCertOverlayFields(editState, { forceRebuild = false } = {}) {
             const stage = document.getElementById("certOverlayStage");
             if (!stage) return;
             stage.querySelectorAll("#certificate-preview, .cert-doc").forEach((el) => el.remove());
             let fields = stage.querySelectorAll(".cert-edit-field");
-            if (!fields.length || fields.length !== CERT_TEXT_LAYOUT.length) {
+            if (forceRebuild || !fields.length || fields.length !== CERT_TEXT_LAYOUT.length) {
                 stage.querySelectorAll(".cert-edit-field, #certNameUnderline").forEach((el) => el.remove());
                 CERT_TEXT_LAYOUT.forEach((def) => {
                     const el = document.createElement("div");
@@ -5345,7 +5415,11 @@
             const stage = document.getElementById("certOverlayStage");
             if (!cert || !previewImg || !stage || stage.hidden) return;
             try {
-                previewImg.src = await renderCertificateBackgroundOnly(cert, certEditState.certType);
+                previewImg.src = await renderCertificateBackgroundOnly(
+                    cert,
+                    certEditState.certType,
+                    certEditState.serialNo
+                );
             } catch (err) {
                 console.error(err);
                 showToast(`⚠️ Could not refresh preview: ${err.message || err}`, "warning");
@@ -5356,40 +5430,61 @@
             const triggerBtn = resolveEventButton(event) || document.getElementById('previewCertBtn');
             const stage = document.getElementById('certOverlayStage');
             const placeholder = document.getElementById('certPreviewPlaceholder');
+            const openToken = ++certPreviewOpenToken;
 
             try {
+                const fromBtnId = triggerBtn?.getAttribute?.("data-cert-id")
+                    || triggerBtn?.dataset?.certId
+                    || null;
+                if (fromBtnId) {
+                    selectedCertRenderId = String(fromBtnId).trim();
+                }
+
                 const cert = getSelectedCertificateForRender();
                 if (!cert) {
                     showToast("Issue a certificate for the selected student first, then preview.", "warning");
                     return;
                 }
 
+                // Always rebind from this record — never reuse previous modal payload.
+                resetCertificatePreviewUi(cert.id);
+                selectedCertRenderId = cert.id;
+
                 setButtonLoading(triggerBtn, true, "Rendering…");
                 setCertificatePreviewLoading(true);
                 document.getElementById('certificatePreviewModal')?.classList.add('open');
 
-                const editState = ensureCertEditStateForCert(cert);
+                const editState = ensureCertEditStateForCert(cert, { forceReload: true });
+                if (openToken !== certPreviewOpenToken) return;
                 syncCertTypeToggleUI(editState.certType);
 
-                const bgDataUrl = await renderCertificateBackgroundOnly(cert, editState.certType);
+                const bgDataUrl = await renderCertificateBackgroundOnly(
+                    cert,
+                    editState.certType,
+                    editState.serialNo
+                );
+                if (openToken !== certPreviewOpenToken) return;
+
                 const previewImg = document.getElementById('certPreviewImage');
                 if (previewImg) previewImg.src = bgDataUrl;
 
-                // Also refresh the inline studio canvas preview strip
+                // Refresh the inline studio canvas without syncing stale overlay text.
                 try {
-                    await renderCertificateOntoCanvas(cert, { scale: 1 });
+                    await renderCertificateOntoCanvas(cert, { scale: 1, syncOverlay: false, forceReload: false });
                 } catch (canvasErr) {
                     console.warn("[Cert] Inline canvas refresh skipped:", canvasErr);
                 }
+                if (openToken !== certPreviewOpenToken) return;
 
                 if (stage) stage.hidden = false;
-                buildOrUpdateCertOverlayFields(editState);
+                buildOrUpdateCertOverlayFields(editState, { forceRebuild: true });
 
                 if (placeholder) {
                     placeholder.hidden = true;
                     placeholder.textContent = "Generate a preview to review the overlay layout.";
                 }
             } catch (err) {
+                if (openToken !== certPreviewOpenToken) return;
                 console.error(err);
                 showToast(`⚠️ Preview failed: ${err.message || err}`, "warning");
                 if (stage) stage.hidden = true;
@@ -5398,13 +5493,18 @@
                     placeholder.textContent = "Preview failed. Please try again.";
                 }
             } finally {
-                setCertificatePreviewLoading(false);
-                setButtonLoading(triggerBtn, false);
+                if (openToken === certPreviewOpenToken) {
+                    setCertificatePreviewLoading(false);
+                    setButtonLoading(triggerBtn, false);
+                }
             }
         }
 
         function closeCertificatePreviewModal() {
             document.getElementById('certificatePreviewModal')?.classList.remove('open');
+            certPreviewOpenToken += 1;
+            const stage = document.getElementById("certOverlayStage");
+            if (stage) stage.hidden = true;
         }
 
         function closeCertificatePreviewOnOverlay(event) {
