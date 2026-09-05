@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Profiles | Meet Our Instructors &amp; Leadership - The Spectrum Institute (TSI) Swat</title>
+    <meta name="description" content="Meet the leadership and instructors at The Spectrum Institute (TSI), Barikot &amp; Mingora, Swat — CEO Abid Rasheed, Director Bakht Zada, AI Specialist Shah Mujeebur Rahman, and full expert faculty team.">
+    <meta name="keywords" content="The Spectrum Institute Faculty, TSI Swat Teachers, Bakht Zada IELTS Expert Swat, Abid Rasheed CEO TSI, Zaid Rasheed ICT Instructor, Ubaid Rasheed HR Manager, Sheraz Khan AutoCAD REVIT Expert, Shah Mujeebur Rahman AI Expert Swat, Hayat Khan Health Safety Instructor, Best Teachers in Barikot Mingora">
+    <meta name="author" content="The Spectrum Institute">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="google-site-verification" content="tJOjjQ63b21gsmxwYH2P4P6YBd3o9pwegfykN_Xnb48">
+    <meta name="geo.region" content="PK-KP">
+    <meta name="geo.placename" content="Barikot &amp; Mingora, Swat">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0c1836">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TSI Spectrum">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="shortcut icon" href="logo.png">
+    <link rel="canonical" href="https://spectruminstitute.uk/faculty.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="The Spectrum Institute">
+    <meta property="og:title" content="Faculty Profiles | Meet Our Instructors &amp; Leadership - The Spectrum Institute (TSI) Swat">
+    <meta property="og:description" content="Meet the full faculty &amp; leadership team of The Spectrum Institute — CEO, Director, HR Manager, and expert instructors in English/IELTS, ICT, AI, AutoCAD/REVIT, Biology, and Health &amp; Safety.">
+    <meta property="og:url" content="https://spectruminstitute.uk/faculty.html">
+    <meta property="og:image" content="https://spectruminstitute.uk/logo.png">
+    <meta property="og:image:alt" content="The Spectrum Institute logo">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Faculty Profiles | The Spectrum Institute TSI Swat">
+    <meta name="twitter:description" content="Meet the full faculty &amp; leadership team of The Spectrum Institute, Barikot &amp; Mingora, Swat.">
+    <meta name="twitter:image" content="https://spectruminstitute.uk/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .faculty-full-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.6rem;
+            padding: 1rem 0 2.5rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .faculty-profile-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            scroll-margin-top: 110px;
+        }
+        .faculty-profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.09);
+        }
+        .faculty-profile-card:target {
+            outline: 2px solid #d97706;
+            outline-offset: 4px;
+        }
+        .fp-header {
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            margin-bottom: 1.1rem;
+        }
+        .fp-photo {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid #fbbf24;
+            background: #0f172a;
+        }
+        .fp-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .fp-photo.no-photo::before {
+            content: attr(data-initials);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: #fbbf24;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .fp-photo.no-photo img { display: none; }
+        .fp-info h2 {
+            font-size: 1.2rem;
+            margin: 0;
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .fp-info .fp-title {
+            font-size: 0.88rem;
+            color: #d97706;
+            font-weight: 700;
+            display: block;
+            margin-top: 2px;
+        }
+        .fp-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .fp-badge {
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 0.7rem;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .fp-body {
+            font-size: 0.92rem;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .fp-body p { margin-top: 0; margin-bottom: 0.8rem; }
+        .fp-body ul { padding-left: 1.2rem; margin: 0.5rem 0 0.5rem 0; }
+        .fp-body li { margin-bottom: 0.45rem; }
+        .faculty-toc {
+            max-width: 1200px;
+            margin: 0 auto 1.5rem;
+            padding: 0 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .faculty-toc a {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+        .faculty-toc a:hover { background: #fef3c7; }
+    </style>
+
+    <!-- Faculty Directory JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "EducationalOrganization",
+          "@id": "https://spectruminstitute.uk/#organization",
+          "name": "The Spectrum Institute",
+          "url": "https://spectruminstitute.uk",
+          "logo": "https://spectruminstitute.uk/logo.png"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://spectruminstitute.uk/" },
+            { "@type": "ListItem", "position": 2, "name": "Faculty Profiles", "item": "https://spectruminstitute.uk/faculty.html" }
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "name": "The Spectrum Institute Faculty",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "item": { "@id": "https://spectruminstitute.uk/faculty.html#bakht-zada" } },
+            { "@type": "ListItem", "position": 2, "item": { "@id": "https://spectruminstitute.uk/#organization-founder" } },
+            { "@type": "ListItem", "position": 3, "item": { "@id": "https://spectruminstitute.uk/#zaid-rasheed" } },
+            { "@type": "ListItem", "position": 4, "item": { "@id": "https://spectruminstitute.uk/faculty.html#ubaid-rasheed" } },
+            { "@type": "ListItem", "position": 5, "item": { "@id": "https://spectruminstitute.uk/faculty.html#sheraz-khan" } },
+            { "@type": "ListItem", "position": 6, "item": { "@id": "https://spectruminstitute.uk/#shah-mujeebur-rahman" } },
+            { "@type": "ListItem", "position": 7, "item": { "@id": "https://spectruminstitute.uk/faculty.html#hayat-khan" } }
+          ]
+        },
+        {
+          "@type": "Person",
+          "@id": "https://spectruminstitute.uk/faculty.html#bakht-zada",
+          "name": "Bakht Zada",
+          "jobTitle": "Director / Senior English Language &amp; IELTS Instructor",
+          "worksFor": { "@id": "https://spectruminstitute.uk/#organization" },
+          "address": { "@type": "PostalAddress", "addressLocality": "Barikot", "addressRegion": "Swat", "addressCountry": "PK" },
+          "hasCredential": { "@type": "EducationalOccupationalCredential", "credentialCategory": "Certification", "name": "Government-Certified English Language Teacher" },
+          "knowsAbout": ["English Language Instruction", "IELTS Preparation & Coaching", "Curriculum Development", "Institutional Leadership"],
+          "description": "Director of The Spectrum Institute with 32+ years of English language teaching experience, a government-certified English teacher, and an IELTS preparation expert."
+        },
+        {
+          "@type": "Person",
+          "@id": "https://spectruminstitute.uk/#organization-founder",
+          "name": "Abid Rasheed",
+          "jobTitle": "CEO &amp; Founder / Senior Technical Lead",
+          "worksFor": { "@id": "https://spectruminstitute.uk/#organization" },
+          "address": { "@type": "PostalAddress", "addressLocality": "Barikot", "addressRegion": "Swat", "addressCountry": "PK" },
+          "knowsAbout": ["Safety Engineering", "AutoCAD", "Revit 3D", "Institutional Management", "Industry Affiliations", "Quality Assurance"],
+          "description": "Founder and CEO of The Spectrum Institute, leading technical programs, safety engineering credentials, and institutional expansion across Swat."
+        },
+        {
+          "@type": "Person",
+          "@id": "https://spectruminstitute.uk/faculty.html#ubaid-rasheed",
+          "name": "Ubaid Rasheed",
+          "jobTitle": "HR Manager / Biology Instructor",
+          "worksFor": { "@id": "https://spectruminstitute.uk/#organization" },
+          "address": { "@type": "PostalAddress", "addressLocality": "Barikot", "addressRegion": "Swat", "addressCountry": "PK" },
+          "knowsAbout": ["Biology & Life Sciences Instruction", "Human Resource Management", "Staff Recruitment & Development"],
+          "description": "HR Manager at The Spectrum Institute with 10+ years of experience in biology education and human resource management."
+        },
+        {
+          "@type": "Person",
+          "@id": "https://spectruminstitute.uk/faculty.html#sheraz-khan",
+          "name": "Sheraz Khan",
+          "jobTitle": "AutoCAD &amp; REVIT Instructor",
+          "worksFor": { "@id": "https://spectruminstitute.uk/#organization" },
+          "address": { "@type": "PostalAddress", "addressLocality": "Barikot", "addressRegion": "Swat", "addressCountry": "PK" },
+          "knowsAbout": ["AutoCAD 2D & 3D Drafting", "REVIT BIM Modeling", "Technical & Engineering Design"],
+          "description": "AutoCAD & REVIT instructor at The Spectrum Institute with 4+ years of technical design and drafting experience."
+        },
+        {
+          "@type": "Person",
+          "@id": "https://spectruminstitute.uk/faculty.html#hayat-khan",
+          "name": "Hayat Khan",
+          "jobTitle": "Health &amp; Safety Instructor",
+          "worksFor": { "@id": "https://spectruminstitute.uk/#organization" },
+          "address": { "@type": "PostalAddress", "addressLocality": "Barikot", "addressRegion": "Swat", "addressCountry": "PK" },
+          "knowsAbout": ["Occupational Health & Safety (OHS)", "Workplace Risk Assessment", "Safety Compliance & Training"],
+          "description": "Health & Safety instructor at The Spectrum Institute with 6+ years of experience in occupational health and workplace safety training."
+        }
+      ]
+    }
+    </script>
+</head>
+<body>
+            <div class="toast-container" id="toastContainer"></div>
+
+
+    <nav class="main-navbar" aria-label="Primary">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo" id="nav-logo" title="The Spectrum Institute"><img src="logo.png" alt="TSI logo" class="nav-logo-img">TSI <span>Spectrum</span></a>
+            <div class="nav-controls">
+                <button type="button" class="nav-toggle-btn" id="navToggleBtn" aria-label="Open menu" aria-expanded="false" aria-controls="publicNavLinks">
+                    <span></span><span></span><span></span>
+                </button>
+                <ul class="nav-links" id="publicNavLinks">
+                    <li><a href="index.html">Home</a></li>
+                    <li class="nav-dropdown">
+                        <button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true">About TSI</button>
+                        <ul class="nav-dropdown-menu" role="menu">
+                            <li role="none"><a role="menuitem" href="overview.html">Overview</a></li>
+                            <li role="none"><a role="menuitem" href="vc-message.html">Director's Message</a></li>
+                            <li role="none"><a role="menuitem" href="vision-mission.html">Vision &amp; Mission</a></li>
+                            <li role="none"><a role="menuitem" href="rules.html">Rules &amp; Conduct</a></li>
+                            <li role="none"><a role="menuitem" href="research.html">Research &amp; Innovation</a></li>
+                            <li role="none"><a role="menuitem" href="about.html">Institute Story</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown is-current">
+                        <button type="button" class="nav-dropdown-toggle is-active" aria-expanded="false" aria-haspopup="true">Academics</button>
+                        <ul class="nav-dropdown-menu" role="menu">
+                            <li role="none"><a role="menuitem" href="courses.html">Courses</a></li>
+                            <li role="none"><a role="menuitem" href="faculties.html">Faculties</a></li>
+                            <li role="none"><a role="menuitem" href="faculty.html" class="is-active">Faculty Profiles</a></li>
+                            <li role="none"><a role="menuitem" href="alumni.html">Alumni</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="admissions.html">Admissions</a></li>
+                    <li><a href="verify.html">Verification</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div id="publicSiteShell">
+
+    <div class="chat-heads-container">
+        <div class="chat-menu-panel" id="chatMenuPanel">
+            <div class="chat-panel-header">
+                <h4>Connect with Us</h4>
+                <p>Select a department to start chat</p>
+            </div>
+            <div class="department-list">
+                <a href="https://wa.me/923469709296?text=Hi,%20I%20want%20to%20know%20about%20Admissions." target="_blank" class="dept-item">
+                    <div class="dept-avatar">🎓</div>
+                    <div class="dept-meta">
+                        <font>Admission Desk</font>
+                        <span>Online | Response instant</span>
+                    </div>
+                </a>
+                <a href="https://wa.me/923309151621?text=Hi,%20I%20have%20a%20query%20about%20Safety%20Courses." target="_blank" class="dept-item">
+                    <div class="dept-avatar">🛡️</div>
+                    <div class="dept-meta">
+                        <font>Safety Department</font>
+                        <span>Online | Response within minutes</span>
+                    </div>
+                </a>
+                <a href="https://wa.me/923464792048?text=Hi,%20I%20want%20to%20talk%20to%20the%20IT%20Head." target="_blank" class="dept-item">
+                    <div class="dept-avatar">💻</div>
+                    <div class="dept-meta">
+                        <font>IT Hub Desk</font>
+                        <span>Available | Ask technical questions</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="chat-trigger-btn" onclick="toggleChatMenu()">
+            <span class="chat-trigger-icon" aria-hidden="true">💬</span>
+            <div class="badge-dot"></div>
+        </div>
+    </div>
+    <main id="publicMain">
+    <section class="adm-hero-section">
+        <span class="adm-hero-badge">OUR FACULTY</span>
+        <h1 class="adm-hero-title"><span id="facultyTypingText"></span><span class="typing-cursor">|</span></h1>
+        <p class="adm-hero-subtitle">Leadership and instructors guiding safety, IT, AI, and academic excellence across TSI programs.</p>
+    </section>
+
+    <nav class="faculty-toc" aria-label="Jump to faculty member">
+        <a href="#bakht-zada">Bakht Zada</a>
+        <a href="#abid-rasheed">Abid Rasheed</a>
+        <a href="#zaid-rasheed">Zaid Rasheed</a>
+        <a href="#ubaid-rasheed">Ubaid Rasheed</a>
+        <a href="#sheraz-khan">Sheraz Khan</a>
+        <a href="#shah-mujeebur-rahman">Shah Mujeeb Ur Rahman</a>
+        <a href="#hayat-khan">Hayat Khan</a>
+    </nav>
+
+    <div class="faculty-full-grid">
+
+        <article class="faculty-profile-card" id="bakht-zada" itemscope itemtype="https://schema.org/Person">
+            <div class="fp-header">
+                <div class="fp-photo" data-initials="BZ"><img loading="lazy" src="teachers/bakhtzada.jpeg" alt="Sir Bakht Zada - Director, The Spectrum Institute" itemprop="image" style="object-position: center 15%;" onerror="this.parentElement.classList.add('no-photo')"></div>
+                <div class="fp-info">
+                    <h2 itemprop="name">Sir Bakht Zada</h2>
+                    <span class="fp-title" itemprop="jobTitle">Director &amp; Senior English / IELTS Instructor</span>
+                    <div class="fp-badges">
+                        <span class="fp-badge">32+ Yrs Experience</span>
+                        <span class="fp-badge">IELTS Expert</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fp-body">
+                <p itemprop="description">Director of The Spectrum Institute and a government-certified English language teacher with over three decades of classroom experience. Specializes in IELTS preparation and advanced English proficiency coaching.</p>
+                <ul>
+                    <li><strong>Experience:</strong> 32+ Years teaching English Language</li>
+                    <li><strong>Key Expertise:</strong> IELTS Preparation &amp; Coaching, English Language Instruction, Curriculum Development</li>
+                    <li><strong>Credential:</strong> Government-Certified English Teacher</li>
+                    <li><strong>Role:</strong> Institute Director — oversees academic operations &amp; language programs</li>
+                    <li><strong>Campus:</strong> TSI Barikot &amp; Mingora</li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="faculty-profile-card" id="abid-rasheed" itemscope itemtype="https://schema.org/Person">
+            <div class="fp-header">
+                <div class="fp-photo" data-initials="AR"><img loading="lazy" src="teachers/abid_rasheed.jpeg" alt="Engr. Abid Rasheed - CEO & Founder, The Spectrum Institute" itemprop="image" style="object-position: center 15%;" onerror="this.parentElement.classList.add('no-photo')"></div>
+                <div class="fp-info">
+                    <h2 itemprop="name">Engr. Abid Rasheed</h2>
+                    <span class="fp-title" itemprop="jobTitle">CEO &amp; Founder / Senior Technical Lead</span>
+                    <div class="fp-badges">
+                        <span class="fp-badge">Institute Founder</span>
+                        <span class="fp-badge">Technical Lead</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fp-body">
+                <p itemprop="description">Founder and CEO of The Spectrum Institute, leading technical programs, safety engineering credentials, and institutional expansion across Swat.</p>
+                <ul>
+                    <li><strong>Key Tracks:</strong> Safety Engineering, AutoCAD, Revit 3D, Institutional Management</li>
+                    <li><strong>Focus:</strong> Industry Affiliations, Student Placement, and Quality Assurance</li>
+                    <li><strong>Role:</strong> Founder &amp; Chief Executive Officer</li>
+                    <li><strong>Campus:</strong> TSI Barikot &amp; Mingora</li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="faculty-profile-card" id="zaid-rasheed" itemscope itemtype="https://schema.org/Person">
+            <div class="fp-header">
+                <div class="fp-photo" data-initials="ZR"><img loading="lazy" src="teachers/zaid_rasheed.jpeg" alt="Zaid Rasheed - Managing Director, The Spectrum Institute" itemprop="image" style="object-position: center 15%;" onerror="this.parentElement.classList.add('no-photo')"></div>
+                <div class="fp-info">
+                    <h2 itemprop="name">Zaid Rasheed</h2>
+                    <span class="fp-title" itemprop="jobTitle">Managing Director / Senior ICT &amp; Software Lead</span>
+                    <div class="fp-badges">
+                        <span class="fp-badge">10+ Yrs Experience</span>
+                        <span class="fp-badge">ICT &amp; Programming</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fp-body">
+                <p itemprop="description">Managing Director of TSI and a veteran instructor with over 10 years of professional teaching and development experience in ICT, programming languages, and office productivity tools.</p>
+                <ul>
+                    <li><strong>Key Expertise:</strong> MS Office Suite (Excel, Word, PowerPoint Expert), ICT Fundamentals</li>
+                    <li><strong>Software &amp; Web Dev:</strong> Python, C++, Web Development, Graphic Design</li>
+                    <li><strong>Teaching Focus:</strong> Hands-on Practical Training &amp; Corporate Skill Preparation</li>
+                    <li><strong>Campus:</strong> TSI Barikot &amp; Mingora</li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="faculty-profile-card" id="ubaid-rasheed" itemscope itemtype="https://schema.org/Person">
+            <div class="fp-header">
+                <div class="fp-photo" data-initials="UR"><img loading="lazy" src="teachers/ubaid_rasheed.jpeg" alt="Ubaid Rasheed - HR Manager, The Spectrum Institute" itemprop="image" style="object-position: center 30%;" onerror="this.parentElement.classList.add('no-photo')"></div>
+                <div class="fp-info">
+                    <h2 itemprop="name">Ubaid Rasheed</h2>
+                    <span class="fp-title" itemprop="jobTitle">HR Manager / Biology Instructor</span>
+                    <div class="fp-badges">
+                        <span class="fp-badge">10+ Yrs Experience</span>
+                        <span class="fp-badge">Biology Expert</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fp-body">
+                <p itemprop="description">HR Manager at The Spectrum Institute and an experienced Biology instructor with 10+ years of teaching and human resource management experience.</p>
+                <ul>
+                    <li><strong>Experience:</strong> 10+ Years in Biology Education &amp; HR</li>
+                    <li><strong>Key Expertise:</strong> Biology &amp; Life Sciences Instruction, Human Resource Management, Staff Recruitment &amp; Development</li>
+                    <li><strong>Role:</strong> HR Manager — staff coordination &amp; institutional operations</li>
+                    <li><strong>Campus:</strong> TSI Barikot &amp; Mingora</li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="faculty-profile-card" id="sheraz-khan" itemscope itemtype="https://schema.org/Person">
+            <div class="fp-header">
+                <div class="fp-photo" data-initials="SK"><img loading="lazy" src="teachers/sheraz_khan.jpeg" alt="Sheraz Khan - AutoCAD & REVIT Instructor, The Spectrum Institute" itemprop="image" style="object-position: center 36%;" onerror="this.parentElement.classList.add('no-photo')"></div>
+                <div class="fp-info">
+                    <h2 itemprop="name">Sheraz Khan</h2>
+                    <span class="fp-title" itemprop="jobTitle">AutoCAD &amp; REVIT Instructor</span>
+                    <div class="fp-badges">
+                        <span class="fp-badge">4+ Yrs Experience</span>
+                        <span class="fp-badge">AutoCAD &amp; REVIT</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fp-body">
+                <p itemprop="description">Technical design instructor at TSI specializing in computer-aided drafting and Building Information Modeling (BIM), training students on industry-standard engineering design software.</p>
+                <ul>
+                    <li><strong>Experience:</strong> 4+ Years</li>
+                    <li><strong>Key Expertise:</strong> AutoCAD 2D/3D Drafting, REVIT BIM Modeling, Technical &amp; Engineering Design</li>
+                    <li><strong>Campus:</strong> TSI Barikot &amp; Mingora</li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="faculty-profile-card" id="shah-mujeebur-rahman" itemscope itemtype="https://schema.org/Person">
+            <div class="fp-header">
+                <div class="fp-photo" data-initials="SMR"><img loading="lazy" src="teachers/mujeeb_ur_rahman.jpeg" alt="Shah Mujeeb Ur Rahman - Lead IT & AI Specialist, The Spectrum Institute" itemprop="image" style="object-position: center 15%;" onerror="this.parentElement.classList.add('no-photo')"></div>
+                <div class="fp-info">
+                    <h2 itemprop="name">Shah Mujeeb Ur Rahman</h2>
+                    <span class="fp-title" itemprop="jobTitle">Lead IT &amp; AI Specialist</span>
+                    <div class="fp-badges">
+                        <span class="fp-badge">Top AI Expert in Swat</span>
+                        <span class="fp-badge">2+ Yrs AI Exp</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fp-body">
+                <p itemprop="description">Specializing in Deep Learning, Machine Learning, Computer Vision, RAG architectures, and custom LLM Fine-Tuning (Markhor AI). Active AI vulnerability researcher.</p>
+                <ul>
+                    <li><strong>Education &amp; Credentials:</strong> BS CS, DIT, CIT, UK 3-Year Artificial Intelligence Certificate</li>
+                    <li><strong>Key Specializations:</strong> Fine-Tuning LLMs, Computer Vision, RAG Pipelines, Web &amp; Software Architecture, Robotics (20%)</li>
+                    <li><strong>Major Projects:</strong> Custom Snake-OS compilation, Pashto AI Agent systems, Full-Stack applications</li>
+                    <li><strong>Campus:</strong> TSI Barikot &amp; Mingora</li>
+                </ul>
+                <div class="faculty-achievements" style="background:#f8fafc;border-left:3px solid #d97706;padding:8px 12px;border-radius:0 6px 6px 0;font-size:0.85rem;color:#1e293b;margin-top:10px;">
+                    🏆 <strong>Bounty &amp; Security Honor:</strong> Recognized and rewarded $500 for identifying critical AI model vulnerabilities &amp; manipulation risks.
+                </div>
+            </div>
+        </article>
+
+        <article class="faculty-profile-card" id="hayat-khan" itemscope itemtype="https://schema.org/Person">
+            <div class="fp-header">
+                <div class="fp-photo" data-initials="HK"><img loading="lazy" src="teachers/hayat_khan.jpeg" alt="Hayat Khan - Health & Safety Instructor, The Spectrum Institute" itemprop="image" style="object-position: center 25%;" onerror="this.parentElement.classList.add('no-photo')"></div>
+                <div class="fp-info">
+                    <h2 itemprop="name">Hayat Khan</h2>
+                    <span class="fp-title" itemprop="jobTitle">Health &amp; Safety Instructor</span>
+                    <div class="fp-badges">
+                        <span class="fp-badge">6+ Yrs Experience</span>
+                        <span class="fp-badge">Occupational Health &amp; Safety</span>
+                    </div>
+                </div>
+            </div>
+            <div class="fp-body">
+                <p itemprop="description">Health &amp; Safety instructor at TSI with hands-on industry experience, training students in workplace risk assessment, hazard prevention, and safety compliance standards.</p>
+                <ul>
+                    <li><strong>Experience:</strong> 6+ Years</li>
+                    <li><strong>Key Expertise:</strong> Occupational Health &amp; Safety (OHS), Workplace Risk Assessment, Safety Compliance &amp; Training</li>
+                    <li><strong>Campus:</strong> TSI Barikot &amp; Mingora</li>
+                </ul>
+            </div>
+        </article>
+
+    </div>
+    </main>
+    </div>
+
+    <footer role="contentinfo">
+        <div class="footer-contact" aria-label="Institute contact details">
+            <a class="footer-contact-link" href="tel:+923469709296"><span>0346-9709296</span></a>
+            <a class="footer-contact-link" href="tel:+923309151621"><span>0330-9151621</span></a>
+            <a class="footer-contact-link" href="tel:+923464792048"><span>0346-4792048</span></a>
+            <a class="footer-contact-link footer-contact-email" href="mailto:info@tsi.com"><span>info@tsi.com</span></a>
+        </div>
+        <div class="footer-campuses" aria-label="Campus addresses">
+            <p class="footer-campus-line"><span class="footer-campus-label">Barikot Main Campus:</span> <span class="footer-campus-address">1st Floor, Usman Plaza, Main Pull, Barikot, Swat.</span></p>
+            <p class="footer-campus-line"><span class="footer-campus-label">Mingora City Campus:</span> <span class="footer-campus-address">Opposite to Mela Ground, Mingora, Swat (Branch Manager: Amir Hamza)</span></p>
+        </div>
+        <p>&copy; 2022 <span>The Spectrum Institute (TSI)</span> - Barikot &amp; Mingora, Swat. All technical rights reserved.</p>
+        <p class="footer-seo-copy">The Spectrum Institute is the <strong>Best Technical and Professional Education Institute in Barikot &amp; Mingora, Swat</strong>, offering <strong>Safety Engineering diplomas in Swat, Pakistan</strong> and serving as a <strong>Top IT and Software Development training center in Swat</strong>.</p>
+    </footer>
+
+    <script src="js/vendor/supabase.min.js" defer></script>
+    <script src="js/app.js" defer></script>
+
+    <!-- Typing Animation — same 7-color rotating style as the homepage hero -->
+    <script>
+        (function () {
+            const facultyPhrases = [
+                "MEET OUR FACULTY &amp; INSTRUCTORS",
+                "LEADERSHIP GUIDING EVERY BATCH",
+                "EXPERTS IN SAFETY, IT &amp; AI",
+                "MENTORS BEHIND YOUR SUCCESS"
+            ];
+            const facultyColors = ["#c9a13b", "#f7f3e9", "#e9c46a", "#f0d78c"];
+
+            let facultyPhraseIndex = 0, facultyCharIndex = 0, facultyColorIndex = 0, facultyIsDeleting = false;
+            const facultyTypingSpeed = 70, facultyDeletingSpeed = 40, facultyDelayAfterType = 2000, facultyDelayAfterDelete = 500;
+
+            const facultyTarget = document.getElementById("facultyTypingText");
+            const facultyContainer = document.querySelector(".adm-hero-title");
+
+            function facultyTypeLoop() {
+                const currentPhrase = facultyPhrases[facultyPhraseIndex];
+
+                if (!facultyIsDeleting) {
+                    facultyTarget.textContent = currentPhrase.substring(0, facultyCharIndex + 1);
+                    facultyCharIndex++;
+                    if (facultyCharIndex === currentPhrase.length) {
+                        facultyIsDeleting = true;
+                        setTimeout(facultyTypeLoop, facultyDelayAfterType);
+                        return;
+                    }
+                } else {
+                    facultyTarget.textContent = currentPhrase.substring(0, facultyCharIndex - 1);
+                    facultyCharIndex--;
+                    if (facultyCharIndex === 0) {
+                        facultyIsDeleting = false;
+                        facultyPhraseIndex = (facultyPhraseIndex + 1) % facultyPhrases.length;
+                        facultyColorIndex = (facultyColorIndex + 1) % facultyColors.length;
+                        if (facultyContainer) facultyContainer.style.color = facultyColors[facultyColorIndex];
+                        setTimeout(facultyTypeLoop, facultyDelayAfterDelete);
+                        return;
+                    }
+                }
+                setTimeout(facultyTypeLoop, facultyIsDeleting ? facultyDeletingSpeed : facultyTypingSpeed);
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                if (facultyTarget) {
+                    if (facultyContainer) facultyContainer.style.color = facultyColors[0];
+                    facultyTypeLoop();
+                }
+            });
+        })();
+    </script>
+
+    <script src="/js/pwa.js" defer></script>
+</body>
+</html>

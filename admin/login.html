@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | The Spectrum Institute</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" sizes="32x32" href="../logo.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0c1836">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TSI Spectrum">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="shortcut icon" href="../logo.png">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="auth-resolving">
+    <div class="toast-container" id="toastContainer"></div>
+    <header class="admin-standalone-nav">
+        <a href="../index.html" class="nav-logo" id="nav-logo"><img src="../logo.png" alt="TSI logo" class="nav-logo-img">TSI <span>Spectrum</span></a>
+        <div class="admin-standalone-actions">
+            <a href="../index.html" class="cta-btn secondary" style="padding:8px 14px;font-size:0.85rem;">← Back to Site</a>
+        </div>
+    </header>
+
+    <main class="admin-login-page">
+        <div class="admin-login-card" role="dialog" aria-labelledby="adminLoginTitle">
+            <div class="modal-header">
+                <h3 id="adminLoginTitle">Admin Access</h3>
+            </div>
+            <div class="modal-body admin-login-body">
+                <p class="admin-login-subtitle">Sign in with your Spectrum Institute administrator credentials to open the secure console.</p>
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="adminEmail">Admin Email</label>
+                        <input type="email" id="adminEmail" name="email" autocomplete="username" placeholder="admin@spectruminstitute.pk" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" name="password" autocomplete="current-password" placeholder="Enter your password" required>
+                    </div>
+                    <p class="admin-login-error" id="adminLoginError" hidden></p>
+                    <button type="submit" class="submit-btn admin-login-submit" id="adminLoginSubmitBtn">Sign In Securely</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/vendor/supabase.min.js" defer></script>
+    <script src="../js/admin-auth.js" defer></script>
+    <script src="../js/app.js" defer></script>
+    <script src="/js/pwa.js" defer></script>
+</body>
+</html>

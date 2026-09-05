@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Certificate | The Spectrum Institute TSI</title>
+    <meta name="description" content="Verify a Spectrum Institute student certificate online using Certificate ID and identity details.">
+    <meta name="author" content="The Spectrum Institute">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="geo.region" content="PK-KP">
+    <meta name="geo.placename" content="Barikot &amp; Mingora, Swat">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0c1836">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TSI Spectrum">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="shortcut icon" href="logo.png">
+    <link rel="canonical" href="https://spectruminstitute.uk/verify.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="The Spectrum Institute">
+    <meta property="og:title" content="Verify Certificate | The Spectrum Institute TSI">
+    <meta property="og:description" content="Verify a Spectrum Institute student certificate online using Certificate ID and identity details.">
+    <meta property="og:url" content="https://spectruminstitute.uk/verify.html">
+    <meta property="og:image" content="https://spectruminstitute.uk/logo.png">
+    <meta property="og:image:alt" content="The Spectrum Institute logo">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Verify Certificate | The Spectrum Institute TSI">
+    <meta name="twitter:description" content="Verify a Spectrum Institute student certificate online using Certificate ID and identity details.">
+    <meta name="twitter:image" content="https://spectruminstitute.uk/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+            <div class="toast-container" id="toastContainer"></div>
+
+
+    <nav class="main-navbar" aria-label="Primary">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo" id="nav-logo" title="The Spectrum Institute"><img src="logo.png" alt="TSI logo" class="nav-logo-img">TSI <span>Spectrum</span></a>
+            <div class="nav-controls">
+                <button type="button" class="nav-toggle-btn" id="navToggleBtn" aria-label="Open menu" aria-expanded="false" aria-controls="publicNavLinks">
+                    <span></span><span></span><span></span>
+                </button>
+                <ul class="nav-links" id="publicNavLinks">
+                    <li><a href="index.html">Home</a></li>
+                    <li class="nav-dropdown">
+                        <button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true">About TSI</button>
+                        <ul class="nav-dropdown-menu" role="menu">
+                            <li role="none"><a role="menuitem" href="overview.html">Overview</a></li>
+                            <li role="none"><a role="menuitem" href="vc-message.html">Director's Message</a></li>
+                            <li role="none"><a role="menuitem" href="vision-mission.html">Vision &amp; Mission</a></li>
+                            <li role="none"><a role="menuitem" href="rules.html">Rules &amp; Conduct</a></li>
+                            <li role="none"><a role="menuitem" href="research.html">Research &amp; Innovation</a></li>
+                            <li role="none"><a role="menuitem" href="about.html">Institute Story</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true">Academics</button>
+                        <ul class="nav-dropdown-menu" role="menu">
+                            <li role="none"><a role="menuitem" href="courses.html">Courses</a></li>
+                            <li role="none"><a role="menuitem" href="faculties.html">Faculties</a></li>
+                            <li role="none"><a role="menuitem" href="faculty.html">Faculty Profiles</a></li>
+                            <li role="none"><a role="menuitem" href="alumni.html">Alumni</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="admissions.html">Admissions</a></li>
+                    <li><a href="verify.html" class="is-active">Verification</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div id="publicSiteShell">
+
+    <div class="guide-chat-launcher-container" id="verifyChatLauncherContainer">
+        <div class="guide-chat-float-window" id="verifyChatFloatWindow">
+            <div class="guide-chat-panel" aria-labelledby="verify-assistant-heading">
+                <div class="guide-chat-header">
+                    <div class="guide-chat-avatar" aria-hidden="true">🛡️</div>
+                    <div class="guide-chat-header-meta">
+                        <strong id="verify-assistant-heading">TSI Verify Assistant</strong>
+                        <span>Online</span>
+                    </div>
+                    <button type="button" class="guide-chat-close-btn" id="verifyChatCloseBtn" aria-label="Close assistant">&times;</button>
+                </div>
+                <div class="guide-chat-window" id="verifyChatWindow" role="log" aria-live="polite"></div>
+                <form class="guide-chat-input-row" id="verifyChatForm">
+                    <input type="text" id="verifyChatInput" placeholder="Yahan likhen..." autocomplete="off">
+                    <button type="submit" class="guide-chat-send-btn" aria-label="Send">➤</button>
+                </form>
+            </div>
+        </div>
+        <button type="button" class="guide-chat-launcher-btn" id="verifyChatLauncher" aria-label="Open Verify Assistant">
+            <span aria-hidden="true">🛡️</span>
+            <div class="badge-dot"></div>
+        </button>
+    </div>
+
+    <main id="publicMain">
+<section class="adm-hero-section">
+    <span class="adm-hero-badge">CERTIFICATE VERIFICATION</span>
+    <h1 class="adm-hero-title"><span id="verifyTypingText"></span><span class="typing-cursor">|</span></h1>
+    <p class="adm-hero-subtitle">Confirm any TSI certificate in seconds — fill in the details below or scan the QR code printed on it.</p>
+</section>
+<section class="verify-section-wrap" id="verify" aria-labelledby="verify-heading">
+    <div class="verify-section">
+        <div class="verify-card">
+            <p class="verify-subtitle">Neeche diya gaya form bharen ya QR code scan karen. Chahen to niche baayen corner wale <strong>Verify Assistant</strong> icon per click kar ke step-by-step chat se bhi verify kar sakte hain.</p>
+
+            <form class="verify-secure-form" id="verifySecureForm" onsubmit="handleVerifyButtonClick(event)">
+                <div class="verify-fields-grid">
+                    <div class="form-group">
+                        <label for="certIdInput">Certificate ID *</label>
+                        <input type="text" id="certIdInput" placeholder="e.g., TSI-2026-001" autocomplete="off" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="verifyStudentName">Student Full Name *</label>
+                        <input type="text" id="verifyStudentName" placeholder="As printed on certificate" autocomplete="off" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="verifyFatherName">Father's Name *</label>
+                        <input type="text" id="verifyFatherName" placeholder="As printed on certificate" autocomplete="off" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="verifyStudentDob">Date of Birth *</label>
+                        <input type="date" id="verifyStudentDob" required>
+                    </div>
+                </div>
+                <div class="verify-input-group verify-actions-row">
+                    <button type="submit" class="cta-btn" id="verifySubmitBtn"> Verify Authenticity</button>
+                    <button type="button" class="cta-btn secondary" onclick="openQrScanner()"> Scan QR Code</button>
+                </div>
+                <p class="verify-rate-hint" id="verifyRateHint">Up to 5 verification attempts per browser session.</p>
+            </form>
+
+            <div class="verify-result-card" id="verifyResultCard"></div>
+        </div>
+    </div>
+    </section>
+
+    
+    </main>
+    </div>
+
+<div class="modal-overlay" id="qrScannerModal" onclick="closeQrScannerOnOverlay(event)">
+        <div class="modal-card qr-modal-card">
+            <button class="modal-close-btn" onclick="closeQrScanner()">&times;</button>
+            <div class="modal-header">
+                <h3>Scan Certificate QR Code</h3>
+            </div>
+            <div class="modal-body">
+                <div id="qrReaderContainer"></div>
+                <p class="qr-hint">Position the QR code inside the frame. Verification will run automatically once scanned.</p>
+            </div>
+        </div>
+    </div>
+
+    
+    <footer role="contentinfo">
+        <div class="footer-contact" aria-label="Institute contact details">
+            <a class="footer-contact-link" href="tel:+923469709296"><span>0346-9709296</span></a>
+            <a class="footer-contact-link" href="tel:+923309151621"><span>0330-9151621</span></a>
+            <a class="footer-contact-link" href="tel:+923464792048"><span>0346-4792048</span></a>
+            <a class="footer-contact-link footer-contact-email" href="mailto:info@tsi.com"><span>info@tsi.com</span></a>
+        </div>
+        <div class="footer-campuses" aria-label="Campus addresses">
+            <p class="footer-campus-line"><span class="footer-campus-label">Barikot Main Campus:</span> <span class="footer-campus-address">1st Floor, Usman Plaza, Main Pull, Barikot, Swat.</span></p>
+            <p class="footer-campus-line"><span class="footer-campus-label">Mingora City Campus:</span> <span class="footer-campus-address">Opposite to Mela Ground, Mingora, Swat (Branch Manager: Amir Hamza)</span></p>
+        </div>
+        <p>&copy; 2022 <span>The Spectrum Institute (TSI)</span> - Barikot &amp; Mingora, Swat. All technical rights reserved.</p>
+        <p class="footer-seo-copy">The Spectrum Institute is the <strong>Best Technical and Professional Education Institute in Barikot &amp; Mingora, Swat</strong>, offering <strong>Safety Engineering diplomas in Swat, Pakistan</strong> and serving as a <strong>Top IT and Software Development training center in Swat</strong>.</p>
+    </footer>
+
+    <script src="js/vendor/supabase.min.js" defer></script>
+    <script src="js/vendor/html5-qrcode.min.js" defer></script>
+    <script src="js/app.js" defer></script>
+
+    <!-- Typing Animation — same 7-color rotating style as the homepage hero -->
+    <script>
+        (function () {
+            const verifyPhrases = [
+                "VERIFY YOUR CERTIFICATE ONLINE",
+                "SCAN THE QR CODE ON YOUR CERTIFICATE",
+                "AUTHENTIC & TAMPER-PROOF CREDENTIALS",
+                "SECURED BY THE SPECTRUM INSTITUTE"
+            ];
+            const verifyColors = ["#c9a13b", "#f7f3e9", "#e9c46a", "#f0d78c"];
+
+            let verifyPhraseIndex = 0, verifyCharIndex = 0, verifyColorIndex = 0, verifyIsDeleting = false;
+            const verifyTypingSpeed = 70, verifyDeletingSpeed = 40, verifyDelayAfterType = 2000, verifyDelayAfterDelete = 500;
+
+            const verifyTarget = document.getElementById("verifyTypingText");
+            const verifyContainer = document.querySelector(".adm-hero-title");
+
+            function verifyTypeLoop() {
+                const currentPhrase = verifyPhrases[verifyPhraseIndex];
+
+                if (!verifyIsDeleting) {
+                    verifyTarget.textContent = currentPhrase.substring(0, verifyCharIndex + 1);
+                    verifyCharIndex++;
+                    if (verifyCharIndex === currentPhrase.length) {
+                        verifyIsDeleting = true;
+                        setTimeout(verifyTypeLoop, verifyDelayAfterType);
+                        return;
+                    }
+                } else {
+                    verifyTarget.textContent = currentPhrase.substring(0, verifyCharIndex - 1);
+                    verifyCharIndex--;
+                    if (verifyCharIndex === 0) {
+                        verifyIsDeleting = false;
+                        verifyPhraseIndex = (verifyPhraseIndex + 1) % verifyPhrases.length;
+                        verifyColorIndex = (verifyColorIndex + 1) % verifyColors.length;
+                        if (verifyContainer) verifyContainer.style.color = verifyColors[verifyColorIndex];
+                        setTimeout(verifyTypeLoop, verifyDelayAfterDelete);
+                        return;
+                    }
+                }
+                setTimeout(verifyTypeLoop, verifyIsDeleting ? verifyDeletingSpeed : verifyTypingSpeed);
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                if (verifyTarget) {
+                    if (verifyContainer) verifyContainer.style.color = verifyColors[0];
+                    verifyTypeLoop();
+                }
+            });
+        })();
+    </script>
+    <script src="/js/pwa.js" defer></script>
+</body>
+</html>

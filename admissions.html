@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Admission | The Spectrum Institute</title>
+    <meta name="description" content="Official admission portal for The Spectrum Institute (TSI). Apply online for IT, AI, and Safety Engineering tracks.">
+    <meta name="author" content="The Spectrum Institute">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0c1836">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TSI Spectrum">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        :root {
+            --bg-dark: #0c1830;
+            --bg-light-body: #f7f3e9;
+            --text-dark: #0c1830;
+            --text-muted: #7a6f52;
+            --accent-yellow: #c9a13b;
+            --border-light: #e4dbc5;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg-light-body);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        .adm-hero-section {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .adm-hero-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-yellow);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .adm-hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+        }
+
+        .adm-hero-subtitle {
+            max-width: 600px;
+            margin: 0 auto 35px auto;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .stepper-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .step-item.active {
+            color: #ffffff;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #1e293b;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .step-item.active .step-number {
+            background: var(--accent-yellow);
+            color: #000000;
+        }
+
+        .adm-main-container {
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .adm-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            padding: 35px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .adm-step-header h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            margin: 0 0 4px 0;
+        }
+
+        .adm-step-header p {
+            margin: 0 0 25px 0;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .form-step-panel {
+            display: none;
+        }
+
+        .form-step-panel.active {
+            display: block;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-field-group label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #475569;
+        }
+
+        .form-field-group input,
+        .form-field-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .adm-btn-submit {
+            flex: 1;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .adm-btn-back {
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .adm-site-footer {
+            background-color: var(--bg-dark);
+            color: #94a3b8;
+            padding: 30px 40px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid-2 { grid-template-columns: 1fr; }
+            .adm-site-footer { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="main-navbar" aria-label="Primary">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo" id="nav-logo" title="The Spectrum Institute">
+                <img src="logo.png" alt="TSI logo" class="nav-logo-img">TSI <span>Spectrum</span>
+            </a>
+            <div class="nav-controls">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="courses.html">Courses</a></li>
+                    <li><a href="admissions.html" class="is-active">Admission</a></li>
+                    <li><a href="verify.html">Verify Certificate</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="guide-chat-launcher-container" id="admissionChatLauncherContainer">
+        <div class="guide-chat-float-window" id="admissionChatFloatWindow">
+            <div class="guide-chat-panel" aria-labelledby="admission-assistant-heading">
+                <div class="guide-chat-header">
+                    <div class="guide-chat-avatar" aria-hidden="true">🎓</div>
+                    <div class="guide-chat-header-meta">
+                        <strong id="admission-assistant-heading">TSI Admission Assistant</strong>
+                        <span>Online</span>
+                    </div>
+                    <button type="button" class="guide-chat-close-btn" id="admissionChatCloseBtn" aria-label="Close assistant">&times;</button>
+                </div>
+                <div class="guide-chat-window" id="admissionChatWindow" role="log" aria-live="polite"></div>
+                <form class="guide-chat-input-row" id="admissionChatForm">
+                    <input type="text" id="admissionChatInput" placeholder="Yahan likhen..." autocomplete="off">
+                    <button type="submit" class="guide-chat-send-btn" aria-label="Send">➤</button>
+                </form>
+            </div>
+        </div>
+        <button type="button" class="guide-chat-launcher-btn" id="admissionChatLauncher" aria-label="Open Admission Assistant">
+            <span aria-hidden="true">🎓</span>
+            <div class="badge-dot"></div>
+        </button>
+    </div>
+
+    <section class="adm-hero-section">
+        <span class="adm-hero-badge">ADMISSION &amp; ENROLLMENT</span>
+        <h1 class="adm-hero-title"><span id="admTypingText"></span><span class="typing-cursor">|</span></h1>
+        <p class="adm-hero-subtitle">Complete your registration in a few steps. Your request will be sent directly to our database.</p>
+
+        <div class="stepper-container">
+            <div class="step-item active" id="badge-step-1"><span class="step-number">1</span> Personal Info</div>
+            <div class="step-item" id="badge-step-2"><span class="step-number">2</span> Contact Info</div>
+            <div class="step-item" id="badge-step-3"><span class="step-number">3</span> Guardian Info</div>
+            <div class="step-item" id="badge-step-4"><span class="step-number">4</span> Course &amp; Shift</div>
+            <div class="step-item" id="badge-step-5"><span class="step-number">5</span> Done</div>
+        </div>
+    </section>
+
+    <main class="adm-main-container" id="admission-form">
+        <div class="adm-card">
+            <form id="tsiMultiStepForm">
+
+                <!-- Step 1: Personal Info -->
+                <div class="form-step-panel active" id="step-panel-1">
+                    <div class="adm-step-header">
+                        <h3>Step 1 — Personal Information</h3>
+                        <p>Let's start with the basics.</p>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-field-group">
+                            <label for="admFullName">FULL NAME *</label>
+                            <input type="text" id="admFullName" placeholder="Your full name" required>
+                        </div>
+                        <div class="form-field-group">
+                            <label for="admFatherName">FATHER NAME *</label>
+                            <input type="text" id="admFatherName" placeholder="Father's name" required>
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-field-group">
+                            <label for="admDob">DATE OF BIRTH *</label>
+                            <input type="date" id="admDob" required>
+                        </div>
+                        <div class="form-field-group">
+                            <label for="admGender">GENDER *</label>
+                            <select id="admGender" required>
+                                <option value="" disabled selected>Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" class="adm-btn-submit" onclick="nextStep(2)">Continue to Contact Info &rarr;</button>
+                </div>
+
+                <!-- Step 2: Contact Info -->
+                <div class="form-step-panel" id="step-panel-2">
+                    <div class="adm-step-header">
+                        <h3>Step 2 — Contact Information</h3>
+                        <p>How can we reach you?</p>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-field-group">
+                            <label for="admPhone">PHONE NUMBER *</label>
+                            <input type="tel" id="admPhone" placeholder="03XX-XXXXXXX" required>
+                        </div>
+                        <div class="form-field-group">
+                            <label for="admEmail">EMAIL ADDRESS</label>
+                            <input type="email" id="admEmail" placeholder="name@example.com">
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="adm-btn-back" onclick="nextStep(1)">&larr; Back</button>
+                        <button type="button" class="adm-btn-submit" onclick="nextStep(3)">Continue to Guardian Info &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Guardian Info -->
+                <div class="form-step-panel" id="step-panel-3">
+                    <div class="adm-step-header">
+                        <h3>Step 3 — Guardian Details</h3>
+                        <p>Emergency and guardian contact.</p>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-field-group">
+                            <label for="admGuardianName">GUARDIAN NAME *</label>
+                            <input type="text" id="admGuardianName" placeholder="Guardian name" required>
+                        </div>
+                        <div class="form-field-group">
+                            <label for="admGuardianPhone">GUARDIAN PHONE *</label>
+                            <input type="tel" id="admGuardianPhone" placeholder="03XX-XXXXXXX" required>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="adm-btn-back" onclick="nextStep(2)">&larr; Back</button>
+                        <button type="button" class="adm-btn-submit" onclick="nextStep(4)">Continue to Course &amp; Shift &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Course Selection -->
+                <div class="form-step-panel" id="step-panel-4">
+                    <div class="adm-step-header">
+                        <h3>Step 4 — Select Course &amp; Shift</h3>
+                        <p>Choose your target field of study.</p>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-field-group">
+                            <label for="admCourse">DESIRED COURSE *</label>
+                            <select id="admCourse" required>
+                                <option value="" disabled selected>Select Course</option>
+                                <option value="Information Technology (DIT)">Diploma in Information Technology (DIT)</option>
+                                <option value="Artificial Intelligence & Python">Artificial Intelligence & Python</option>
+                                <option value="Cyber Security">Cyber Security</option>
+                                <option value="Safety Engineering / NEBOSH">Safety Engineering / NEBOSH</option>
+                            </select>
+                        </div>
+                        <div class="form-field-group">
+                            <label for="admShift">PREFERRED SHIFT *</label>
+                            <select id="admShift" required>
+                                <option value="" disabled selected>Select Shift</option>
+                                <option value="Morning">Morning</option>
+                                <option value="Evening">Evening</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="adm-btn-back" onclick="nextStep(3)">&larr; Back</button>
+                        <button type="button" class="adm-btn-submit" id="finalSubmitBtn" onclick="submitAdmissionToDatabase()">Submit Application &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Success -->
+                <div class="form-step-panel" id="step-panel-5">
+                    <div class="adm-step-header" style="text-align: center;">
+                        <h3 style="color: #16a34a; font-size: 1.6rem;">🎉 Application Submitted!</h3>
+                        <p>Your admission request has been saved in database. Our admissions team will contact you shortly.</p>
+                        <a href="index.html" class="adm-btn-submit" style="display:inline-block; text-decoration:none; margin-top:15px; width:auto; padding: 10px 25px;">Back to Home</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <footer class="adm-site-footer">
+        <div>&copy; 2022 The Spectrum Institute of Technology. All rights reserved.</div>
+        <div>Barikot, Swat</div>
+    </footer>
+
+    <!-- Supabase CDN JS -->
+    <script src="js/vendor/supabase.min.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof populateSelectWithMasterCourses === "function") {
+                populateSelectWithMasterCourses(document.getElementById('admCourse'), 'Select Course');
+            }
+        });
+
+        function nextStep(stepNumber) {
+            // Check validation for active step
+            const currentActivePanel = document.querySelector('.form-step-panel.active');
+            const requiredInputs = currentActivePanel.querySelectorAll('[required]');
+
+            let isValid = true;
+            requiredInputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.style.borderColor = "#ef4444";
+                    isValid = false;
+                } else {
+                    input.style.borderColor = "#cbd5e1";
+                }
+            });
+
+            if (!isValid) {
+                showToast("Please fill in all required fields before proceeding.", "info");
+                return;
+            }
+
+            // Switch Panels
+            document.querySelectorAll('.form-step-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById(`step-panel-${stepNumber}`).classList.add('active');
+
+            // Switch Step Badges
+            document.querySelectorAll('.step-item').forEach((item, index) => {
+                if (index < stepNumber) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        async function submitAdmissionToDatabase() {
+            if (!requireSupabaseClient()) return;
+
+            const btn = document.getElementById('finalSubmitBtn');
+            setButtonLoading(btn, true, "Saving to database…");
+
+            const fullName = sanitizeInput(document.getElementById('admFullName')?.value || "", { maxLength: 120 });
+            const fatherName = sanitizeInput(document.getElementById('admFatherName')?.value || "", { maxLength: 120 });
+            const dob = document.getElementById('admDob')?.value || null;
+            const gender = sanitizeInput(document.getElementById('admGender')?.value || "", { maxLength: 10 }).toLowerCase();
+            const phone = sanitizePhone(document.getElementById('admPhone')?.value || "");
+            const emailRaw = sanitizeInput(document.getElementById('admEmail')?.value || "", { maxLength: 255 });
+            const guardianName = sanitizeInput(document.getElementById('admGuardianName')?.value || "", { maxLength: 120 });
+            const guardianPhone = sanitizePhone(document.getElementById('admGuardianPhone')?.value || "");
+            const course = sanitizeInput(document.getElementById('admCourse')?.value || "", { maxLength: 150 });
+            const shift = sanitizeInput(document.getElementById('admShift')?.value || "", { maxLength: 40 });
+
+            const digits = String(phone).replace(/\D/g, "") || "unknown";
+            const email = emailRaw || `admission.${digits}@tsi.com`;
+
+            const payload = {
+                full_name: fullName,
+                father_name: fatherName,
+                dob,
+                gender: gender === "female" ? "female" : "male",
+                email,
+                phone,
+                course_interest: course,
+                course_id: resolveCourseIdFromLeadInterest(course),
+                message: [
+                    "Official student admission application",
+                    `Preferred shift: ${shift}`,
+                    `Guardian name: ${guardianName || "N/A"}`,
+                    `Guardian phone: ${guardianPhone || "N/A"}`
+                ].join("\n"),
+                status: "new"
+            };
+
+            const { error } = await insertPublicLead(payload);
+
+            setButtonLoading(btn, false, "Submit Application →");
+
+            if (error) {
+                showToast(`⚠️ Could not submit application: ${error.message || error}`, "warning");
+                return;
+            }
+
+            // Notify admin via Email + SMS + WhatsApp. This is best-effort and
+            // runs AFTER the application is already safely saved above — if the
+            // notification call is slow, fails, or channels aren't configured
+            // yet in Supabase, the student's submission must never be blocked
+            // or shown as failed because of it.
+            notifyAdminOfNewAdmission({
+                fullName, fatherName, phone, email, courseInterest: course, shift, guardianName, guardianPhone
+            });
+
+            nextStep(5);
+        }
+
+        function notifyAdminOfNewAdmission(details) {
+            try {
+                fetch(`${SUPABASE_URL}/functions/v1/notify-new-admission`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                        apikey: SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify(details)
+                }).catch((err) => {
+                    console.warn("[Admission Notify] Could not reach notification function:", err);
+                });
+            } catch (err) {
+                console.warn("[Admission Notify] Notification skipped:", err);
+            }
+        }
+
+        /* Typing Animation — same 7-color rotating style as the homepage hero */
+        (function () {
+            const admPhrases = [
+                "APPLY FOR ADMISSION AT TSI",
+                "JOIN 100+ PROFESSIONAL COURSES",
+                "SECURE YOUR SEAT TODAY",
+                "GET A QR-VERIFIED CREDENTIAL"
+            ];
+            const admColors = ["#c9a13b", "#f7f3e9", "#e9c46a", "#f0d78c"];
+
+            let admPhraseIndex = 0, admCharIndex = 0, admColorIndex = 0, admIsDeleting = false;
+            const admTypingSpeed = 70, admDeletingSpeed = 40, admDelayAfterType = 2000, admDelayAfterDelete = 500;
+
+            const admTarget = document.getElementById("admTypingText");
+            const admContainer = document.querySelector(".adm-hero-title");
+
+            function admTypeLoop() {
+                const currentPhrase = admPhrases[admPhraseIndex];
+
+                if (!admIsDeleting) {
+                    admTarget.textContent = currentPhrase.substring(0, admCharIndex + 1);
+                    admCharIndex++;
+                    if (admCharIndex === currentPhrase.length) {
+                        admIsDeleting = true;
+                        setTimeout(admTypeLoop, admDelayAfterType);
+                        return;
+                    }
+                } else {
+                    admTarget.textContent = currentPhrase.substring(0, admCharIndex - 1);
+                    admCharIndex--;
+                    if (admCharIndex === 0) {
+                        admIsDeleting = false;
+                        admPhraseIndex = (admPhraseIndex + 1) % admPhrases.length;
+                        admColorIndex = (admColorIndex + 1) % admColors.length;
+                        if (admContainer) admContainer.style.color = admColors[admColorIndex];
+                        setTimeout(admTypeLoop, admDelayAfterDelete);
+                        return;
+                    }
+                }
+                setTimeout(admTypeLoop, admIsDeleting ? admDeletingSpeed : admTypingSpeed);
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                if (admTarget) {
+                    if (admContainer) admContainer.style.color = admColors[0];
+                    admTypeLoop();
+                }
+            });
+        })();
+    </script>
+    <script src="/js/pwa.js" defer></script>
+</body>
+</html>
