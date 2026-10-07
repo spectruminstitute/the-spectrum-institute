@@ -1614,6 +1614,7 @@
                         ? "Invalid or Expired Certificate QR Code"
                         : "Verification Failed / Details Mismatched — one or more fields did not match a valid certificate record.";
                     resultCard.innerHTML = renderVerifyErrorMarkup(failMsg);
+                    if (serialOnly) appendVerifyPortalButton(false);
                     if (serialOnly && !options.silentToast) {
                         showToast("⚠️ Invalid or Expired Certificate QR Code", "warning");
                     }
@@ -1640,6 +1641,7 @@
                 }
 
                 renderVerifySuccessMarkup(safeCert);
+                if (serialOnly) appendVerifyPortalButton(true);
                 scrollToVerifyResult();
                 if (!options.silentToast) {
                     showToast("✅ Certificate verified successfully.", "success");
@@ -1652,6 +1654,7 @@
                         ? "Invalid or Expired Certificate QR Code"
                         : "Unexpected error occurred. Please check your internet connection and try again."
                 );
+                if (serialOnly) appendVerifyPortalButton(false);
                 if (serialOnly) {
                     showToast("⚠️ Invalid or Expired Certificate QR Code", "warning");
                 }
@@ -1667,7 +1670,7 @@
                 : `<span class="verify-badge verified">Verified ✅</span>`;
 
             const issueDate = cert.issue_date
-                ? new Date(cert.issue_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                ? new Date(`${String(cert.issue_date).slice(0, 10)}T00:00:00`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
                 : "N/A";
             const expiryDate = cert.expiry_date ? formatDisplayDate(cert.expiry_date) : "No expiry";
 
@@ -1793,6 +1796,7 @@
                     verifyCertificate(certId, studentName, fatherName, studentDob);
                 } else {
                     // Deep-link QR encodes serial only — verify immediately via RPC.
+                    setVerifyQrMode(true);
                     verifyCertificate(certId, "", "", "", { serialOnly: true });
                 }
             } else {
@@ -1831,6 +1835,50 @@
             } else {
                 scrollToVerifySection();
             }
+        }
+
+        // ---------------- QR result view → "Open Verification Portal" ----------------
+        /** QR mode shows only the result; the manual verification form stays hidden until requested. */
+        function setVerifyQrMode(on) {
+            const card = document.querySelector(".verify-card");
+            const area = document.getElementById("verifyFormArea");
+            if (card) card.classList.toggle("is-qr-result", !!on);
+            if (area) area.hidden = !!on;
+        }
+
+        function appendVerifyPortalButton(verified) {
+            const resultCard = document.getElementById("verifyResultCard");
+            if (!resultCard || resultCard.querySelector(".verify-portal-actions")) return;
+            const wrap = document.createElement("div");
+            wrap.className = "verify-portal-actions";
+            wrap.innerHTML = `
+                <p>${verified
+                    ? "This certificate was verified from its QR code. Open the verification portal to check it again with full identity details, or to verify another certificate."
+                    : "The QR code could not be verified. Open the verification portal to check the certificate manually with the student's details."}</p>
+                <button type="button" class="cta-btn verify-portal-btn" onclick="openVerifyPortal()">🔍 Open Verification Portal</button>`;
+            resultCard.appendChild(wrap);
+        }
+
+        function openVerifyPortal() {
+            const resultCard = document.getElementById("verifyResultCard");
+            const certInput = document.getElementById("certIdInput");
+            const keepId = certInput ? certInput.value : "";
+            ["verifyStudentName", "verifyFatherName", "verifyStudentDob"].forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.value = "";
+            });
+            if (resultCard) {
+                resultCard.classList.remove("show", "loading");
+                resultCard.innerHTML = "";
+            }
+            setVerifyQrMode(false);
+            if (window.location.search) {
+                history.replaceState(null, "", window.location.pathname + "#verify");
+            }
+            updateVerifyRateHint();
+            scrollToVerifySection();
+            const focusTarget = keepId ? document.getElementById("verifyStudentName") : certInput;
+            setTimeout(() => focusTarget?.focus({ preventScroll: true }), 350);
         }
 
         function checkUrlForVerifyParam() {
@@ -1872,6 +1920,7 @@
             if (studentName && fatherName && studentDob) {
                 verifyCertificate(certId, studentName, fatherName, studentDob, { silentToast: true });
             } else {
+                setVerifyQrMode(true);
                 verifyCertificate(certId, "", "", "", { serialOnly: true, silentToast: false });
             }
         }
@@ -1888,7 +1937,9 @@
             certificates: [],
             leads: [],
             reviews: [],
-            alumni: []
+            alumni: [],
+            gallery: [],
+            news: []
         };
         let filteredStudents = [];
         let csvImportState = {
@@ -2162,7 +2213,7 @@
         /** Force the public marketing shell and hide the admin workspace. */
         function forcePublicShell() {
             adminSessionUser = null;
-            adminCache = { students: [], courses: [], batches: [], certificates: [], leads: [], reviews: [], alumni: [] };
+            adminCache = { students: [], courses: [], batches: [], certificates: [], leads: [], reviews: [], alumni: [], gallery: [], news: [] };
             filteredStudents = [];
             syncAuthChrome(false);
             const dashboard = document.getElementById("adminDashboard");
@@ -2416,12 +2467,13 @@
             switchAdminTab('students');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             await refreshAdminDashboard();
+            initAdmissionAlerts();
         }
 
         function exitAdminDashboard() {
             window.__tsiAdminBootstrapped = false;
             adminSessionUser = null;
-            adminCache = { students: [], courses: [], batches: [], certificates: [], leads: [], reviews: [], alumni: [] };
+            adminCache = { students: [], courses: [], batches: [], certificates: [], leads: [], reviews: [], alumni: [], gallery: [], news: [] };
             filteredStudents = [];
             syncAuthChrome(false);
             markAuthResolved();
@@ -2455,7 +2507,10 @@
                     (tabName === 'certificates' && label.startsWith('cert')) ||
                     (tabName === 'leads' && label.startsWith('lead')) ||
                     (tabName === 'reviews' && label.startsWith('review')) ||
-                    (tabName === 'alumni' && label.startsWith('alumni'));
+                    (tabName === 'alumni' && label.startsWith('alumni')) ||
+                    (tabName === 'gallery' && label.startsWith('gallery')) ||
+                    (tabName === 'news' && label.startsWith('news')) ||
+                    (tabName === 'admissions' && label.startsWith('admission'));
                 chip.classList.toggle('active', match);
             });
 
@@ -2474,6 +2529,9 @@
             if (tabName === 'leads') refreshAdminLeads();
             if (tabName === 'reviews') renderAdminReviewsTable();
             if (tabName === 'alumni') renderAdminAlumniTable();
+            if (tabName === 'gallery') renderAdminGalleryTable();
+            if (tabName === 'news') renderAdminNewsTable();
+            if (tabName === 'admissions') renderAdminAdmissions();
 
             // Smooth-scroll the main dashboard panels into view after switching tabs
             requestAnimationFrame(() => {
@@ -2491,7 +2549,7 @@
             }
 
             try {
-                const [studentsRes, coursesRes, batchesRes, certsRes, leadsRes, reviewsRes, alumniRes] = await Promise.all([
+                const [studentsRes, coursesRes, batchesRes, certsRes, leadsRes, reviewsRes, alumniRes, galleryRes] = await Promise.all([
                     supabaseClient
                         .from('students')
                         .select('id, full_name, father_name, gender, dob, email, phone, course_id, batch_id, enrollment_date, status, is_archived, courses(name)')
@@ -2521,6 +2579,10 @@
                     supabaseClient
                         .from('alumni')
                         .select('id, student_name, batch_year, course_title, job_title, achievement_story, image_url, created_at')
+                        .order('created_at', { ascending: false }),
+                    supabaseClient
+                        .from(GALLERY_TABLE)
+                        .select(GALLERY_COLUMNS)
                         .order('created_at', { ascending: false })
                 ]);
 
@@ -2593,6 +2655,12 @@
                 } else {
                     adminCache.alumni = alumniRes.data || [];
                 }
+                if (galleryRes.error) {
+                    console.warn("Gallery load warning (run supabase/gallery_schema.sql if the table is missing):", galleryRes.error);
+                    adminCache.gallery = [];
+                } else {
+                    adminCache.gallery = galleryRes.data || [];
+                }
 
                 const activeCourses = adminCache.courses.filter((c) => !c.is_archived).length;
                 const issued = adminCache.certificates.filter((c) => (c.status || '').toLowerCase() === 'active').length;
@@ -2614,8 +2682,12 @@
                 renderAdminBatchesTable();
                 renderAdminCertificatesTable();
                 renderAdminLeadsTable();
+                renderAdminAdmissions();
+                detectNewAdmissions();
                 renderAdminReviewsTable();
                 renderAdminAlumniTable();
+                renderAdminGalleryTable();
+                await refreshAdminNews();
                 renderAdminAnalyticsCharts();
                 if (!getEditingCertificateId()) setCertIdMode(true);
                 else syncCertificateFormModeUI();
@@ -4086,6 +4158,8 @@
             }
             adminCache.leads = data || [];
             renderAdminLeadsTable();
+            renderAdminAdmissions();
+            detectNewAdmissions();
             console.log('[Leads] Admin panel loaded', adminCache.leads.length, 'inquiries from public.leads');
         }
 
@@ -6333,6 +6407,1749 @@ let authListenerBound = false;
             await logAdminActivity("alumni_deleted", "alumni", { id: alumniId });
         }
 
+        // =====================================================================
+        // Student Gallery (public gallery page + admin CRUD)
+        // =====================================================================
+        const GALLERY_TABLE = "student_gallery";
+        const GALLERY_BUCKET = "gallery-photos";
+        const GALLERY_COLUMNS = "id, student_name, father_name, course_title, batch_year, city, result_grade, category, achievement_title, achievement_details, image_url, extra_images, is_featured, is_published, created_at";
+        const GALLERY_CATEGORIES = ["Achievement", "Certificate", "Award", "Job Placement", "Event"];
+        const GALLERY_MAX_EXTRA_IMAGES = 6;
+        const GALLERY_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+        let galleryRows = [];
+        const galleryFilters = { q: "", course: "", year: "", category: "" };
+        let galleryLastFocus = null;
+        let galleryFormExtraImages = [];
+
+        function gallerySafeImageUrl(value) {
+            const url = String(value || "").trim();
+            return /^https:\/\//i.test(url) ? url : "";
+        }
+
+        function galleryExtraImages(row) {
+            const list = Array.isArray(row?.extra_images) ? row.extra_images : [];
+            return list.map(gallerySafeImageUrl).filter(Boolean);
+        }
+
+        function galleryAllImages(row) {
+            const main = gallerySafeImageUrl(row?.image_url);
+            return [main, ...galleryExtraImages(row)].filter(Boolean);
+        }
+
+        // ---------- Public page ----------
+        function renderGalleryFilterOptions() {
+            const courseSel = document.getElementById("galleryCourse");
+            const yearSel = document.getElementById("galleryYear");
+            const chips = document.getElementById("galleryCategoryChips");
+            if (!courseSel || !yearSel || !chips) return;
+
+            const unique = (key) => [...new Set(galleryRows.map((r) => String(r[key] || "").trim()).filter(Boolean))];
+            const courses = unique("course_title").sort((a, b) => a.localeCompare(b));
+            const years = unique("batch_year").sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+            const categories = GALLERY_CATEGORIES.filter((c) => galleryRows.some((r) => r.category === c));
+
+            courseSel.innerHTML = `<option value="">All courses</option>` +
+                courses.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+            yearSel.innerHTML = `<option value="">All batches</option>` +
+                years.map((y) => `<option value="${escapeHtml(y)}">${escapeHtml(y)}</option>`).join("");
+            courseSel.value = courses.includes(galleryFilters.course) ? galleryFilters.course : "";
+            yearSel.value = years.includes(galleryFilters.year) ? galleryFilters.year : "";
+            galleryFilters.course = courseSel.value;
+            galleryFilters.year = yearSel.value;
+            if (galleryFilters.category && !categories.includes(galleryFilters.category)) galleryFilters.category = "";
+
+            const items = ["", ...categories];
+            chips.innerHTML = categories.length
+                ? items.map((c) => `<button type="button" class="gallery-chip" data-gallery-category="${escapeHtml(c)}" aria-pressed="${galleryFilters.category === c ? "true" : "false"}">${c ? escapeHtml(c) : "All"}</button>`).join("")
+                : "";
+        }
+
+        function getFilteredGalleryRows() {
+            const q = galleryFilters.q.trim().toLowerCase();
+            return galleryRows.filter((r) => {
+                if (galleryFilters.course && r.course_title !== galleryFilters.course) return false;
+                if (galleryFilters.year && r.batch_year !== galleryFilters.year) return false;
+                if (galleryFilters.category && r.category !== galleryFilters.category) return false;
+                if (q) {
+                    const haystack = [r.student_name, r.father_name, r.course_title, r.achievement_title, r.achievement_details, r.city, r.category]
+                        .map((v) => String(v || "").toLowerCase()).join(" ");
+                    if (!haystack.includes(q)) return false;
+                }
+                return true;
+            });
+        }
+
+        function renderGalleryGrid() {
+            const grid = document.getElementById("galleryGrid");
+            const countEl = document.getElementById("galleryCount");
+            if (!grid) return;
+            const list = getFilteredGalleryRows();
+
+            if (countEl) {
+                countEl.textContent = galleryRows.length
+                    ? `Showing ${list.length} of ${galleryRows.length} ${galleryRows.length === 1 ? "student" : "students"}`
+                    : "";
+            }
+            if (!galleryRows.length) {
+                grid.innerHTML = `<p class="gallery-empty">The gallery is empty for now. Student photos and achievements will appear here once the institute publishes them.</p>`;
+                return;
+            }
+            if (!list.length) {
+                grid.innerHTML = `<p class="gallery-empty">No students match these filters. Clear the search or choose a different course, batch or category.</p>`;
+                return;
+            }
+
+            grid.innerHTML = list.map((r) => {
+                const images = galleryAllImages(r);
+                const main = images[0];
+                const photo = main
+                    ? `<img src="${escapeHtml(main)}" alt="${escapeHtml(r.student_name)}" loading="lazy">`
+                    : `<span aria-hidden="true">${escapeHtml(alumniInitials(r.student_name))}</span>`;
+                const featured = r.is_featured ? `<span class="gallery-card-featured">Featured</span>` : "";
+                const more = images.length > 1 ? `<span class="gallery-card-photos">${images.length} photos</span>` : "";
+                return `<button type="button" class="gallery-card" data-gallery-id="${escapeHtml(r.id)}" aria-label="View details for ${escapeHtml(r.student_name)}">
+                    <div class="gallery-card-photo">${photo}${featured}${more}</div>
+                    <div class="gallery-card-body">
+                        <span class="gallery-card-category">${escapeHtml(r.category || "Achievement")}</span>
+                        <h3 class="gallery-card-name">${escapeHtml(r.student_name)}</h3>
+                        <span class="gallery-card-meta">${escapeHtml(r.course_title)} (Batch ${escapeHtml(r.batch_year)})</span>
+                        <span class="gallery-card-title">${escapeHtml(r.achievement_title)}</span>
+                    </div>
+                </button>`;
+            }).join("");
+        }
+
+        function setGalleryDetailImage(url, name) {
+            const stage = document.getElementById("galleryDetailStage");
+            if (!stage) return;
+            stage.innerHTML = url
+                ? `<img src="${escapeHtml(url)}" alt="${escapeHtml(name)}">`
+                : `<span aria-hidden="true">${escapeHtml(alumniInitials(name))}</span>`;
+        }
+
+        function openGalleryDetail(id, triggerEl) {
+            const overlay = document.getElementById("galleryDetail");
+            const row = galleryRows.find((r) => r.id === id);
+            if (!overlay || !row) return;
+            galleryLastFocus = triggerEl || document.activeElement;
+
+            const images = galleryAllImages(row);
+            setGalleryDetailImage(images[0] || "", row.student_name);
+
+            const thumbs = document.getElementById("galleryDetailThumbs");
+            if (thumbs) {
+                thumbs.innerHTML = images.length > 1
+                    ? images.map((url, i) => `<button type="button" class="gallery-thumb" data-gallery-image="${escapeHtml(url)}" aria-label="Show photo ${i + 1} of ${images.length}" aria-current="${i === 0 ? "true" : "false"}"><img src="${escapeHtml(url)}" alt="" loading="lazy"></button>`).join("")
+                    : "";
+            }
+
+            const detailRows = [
+                ["Father's name", row.father_name],
+                ["Course", row.course_title],
+                ["Batch", row.batch_year],
+                ["City", row.city],
+                ["Result", row.result_grade]
+            ].filter(([, v]) => String(v || "").trim());
+
+            const body = document.getElementById("galleryDetailBody");
+            if (body) {
+                body.innerHTML = `
+                    <p class="gd-category">${escapeHtml(row.category || "Achievement")}</p>
+                    <h2 id="galleryDetailName">${escapeHtml(row.student_name)}</h2>
+                    <p class="gd-achievement">${escapeHtml(row.achievement_title)}</p>
+                    ${row.achievement_details ? `<p class="gd-story">${escapeHtml(row.achievement_details)}</p>` : ""}
+                    <dl>${detailRows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join("")}</dl>`;
+            }
+
+            overlay.hidden = false;
+            document.body.classList.add("gallery-open");
+            document.getElementById("galleryDetailClose")?.focus();
+        }
+
+        function closeGalleryDetail() {
+            const overlay = document.getElementById("galleryDetail");
+            if (!overlay || overlay.hidden) return;
+            overlay.hidden = true;
+            document.body.classList.remove("gallery-open");
+            if (galleryLastFocus && typeof galleryLastFocus.focus === "function") galleryLastFocus.focus();
+            galleryLastFocus = null;
+        }
+
+        function bindGalleryPageEvents() {
+            const grid = document.getElementById("galleryGrid");
+            const overlay = document.getElementById("galleryDetail");
+            let searchTimer = null;
+
+            grid?.addEventListener("click", (event) => {
+                const card = event.target.closest("[data-gallery-id]");
+                if (card) openGalleryDetail(card.getAttribute("data-gallery-id"), card);
+            });
+
+            document.getElementById("gallerySearch")?.addEventListener("input", (event) => {
+                clearTimeout(searchTimer);
+                const value = event.target.value;
+                searchTimer = setTimeout(() => { galleryFilters.q = value; renderGalleryGrid(); }, 150);
+            });
+            document.getElementById("galleryCourse")?.addEventListener("change", (event) => {
+                galleryFilters.course = event.target.value;
+                renderGalleryGrid();
+            });
+            document.getElementById("galleryYear")?.addEventListener("change", (event) => {
+                galleryFilters.year = event.target.value;
+                renderGalleryGrid();
+            });
+            document.getElementById("galleryCategoryChips")?.addEventListener("click", (event) => {
+                const chip = event.target.closest("[data-gallery-category]");
+                if (!chip) return;
+                galleryFilters.category = chip.getAttribute("data-gallery-category") || "";
+                document.querySelectorAll("#galleryCategoryChips .gallery-chip").forEach((el) => {
+                    el.setAttribute("aria-pressed", el === chip ? "true" : "false");
+                });
+                renderGalleryGrid();
+            });
+
+            document.getElementById("galleryDetailClose")?.addEventListener("click", closeGalleryDetail);
+            overlay?.addEventListener("click", (event) => {
+                if (event.target === overlay) closeGalleryDetail();
+            });
+            document.getElementById("galleryDetailThumbs")?.addEventListener("click", (event) => {
+                const thumb = event.target.closest("[data-gallery-image]");
+                if (!thumb) return;
+                const name = document.getElementById("galleryDetailName")?.textContent || "";
+                setGalleryDetailImage(thumb.getAttribute("data-gallery-image"), name);
+                document.querySelectorAll("#galleryDetailThumbs .gallery-thumb").forEach((el) => {
+                    el.setAttribute("aria-current", el === thumb ? "true" : "false");
+                });
+            });
+            document.addEventListener("keydown", (event) => {
+                if (!overlay || overlay.hidden) return;
+                if (event.key === "Escape") {
+                    closeGalleryDetail();
+                    return;
+                }
+                if (event.key === "Tab") {
+                    const focusable = [...overlay.querySelectorAll("button, [href], input, select, textarea")].filter((el) => !el.disabled && el.offsetParent !== null);
+                    if (!focusable.length) return;
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+                }
+            });
+        }
+
+        async function fetchPublicGalleryRows() {
+            const { data, error } = await supabaseClient
+                .from(GALLERY_TABLE)
+                .select(GALLERY_COLUMNS)
+                .eq("is_published", true)
+                .order("is_featured", { ascending: false })
+                .order("created_at", { ascending: false });
+            if (error) {
+                console.warn("[Gallery] public fetch failed:", error);
+                return null;
+            }
+            return data || [];
+        }
+
+        async function initPublicGallery() {
+            const grid = document.getElementById("galleryGrid");
+            if (!grid) return;
+            if (!supabaseClient) {
+                grid.innerHTML = `<p class="gallery-empty">The gallery is unavailable right now. Please check your connection and try again.</p>`;
+                return;
+            }
+            bindGalleryPageEvents();
+            const rows = await fetchPublicGalleryRows();
+            if (rows === null) {
+                grid.innerHTML = `<p class="gallery-empty">The gallery could not be loaded. Please try again in a few minutes.</p>`;
+                return;
+            }
+            galleryRows = rows;
+            renderGalleryFilterOptions();
+            renderGalleryGrid();
+            try {
+                supabaseClient
+                    .channel("public-student-gallery")
+                    .on("postgres_changes", { event: "*", schema: "public", table: GALLERY_TABLE }, async () => {
+                        const fresh = await fetchPublicGalleryRows();
+                        if (fresh === null) return;
+                        galleryRows = fresh;
+                        renderGalleryFilterOptions();
+                        renderGalleryGrid();
+                    })
+                    .subscribe();
+            } catch (err) {
+                console.warn("[Gallery] realtime subscribe skipped:", err);
+            }
+        }
+
+        // ---------- Admin manager ----------
+        function renderAdminGalleryTable() {
+            const body = document.getElementById("adminGalleryBody");
+            if (!body) return;
+            const rows = adminCache.gallery || [];
+            if (!rows.length) {
+                body.innerHTML = `<tr><td colspan="6" class="admin-table-empty">No gallery entries yet. Click Add Student to Gallery.</td></tr>`;
+                return;
+            }
+            body.innerHTML = rows.map((r) => {
+                const safeId = escapeJsString(r.id);
+                const main = gallerySafeImageUrl(r.image_url);
+                const thumb = main
+                    ? `<img class="admin-gallery-thumb" src="${escapeHtml(main)}" alt="">`
+                    : `<span class="admin-gallery-thumb">${escapeHtml(alumniInitials(r.student_name))}</span>`;
+                const extra = galleryExtraImages(r).length;
+                const status = r.is_published
+                    ? `<span class="admin-gallery-badge">Published</span>`
+                    : `<span class="admin-gallery-badge is-off">Hidden</span>`;
+                return `<tr>
+                    <td>${thumb}</td>
+                    <td>${escapeHtml(r.student_name)}${r.is_featured ? ` <span class="admin-gallery-badge">Featured</span>` : ""}</td>
+                    <td>${escapeHtml(r.course_title)} (${escapeHtml(r.batch_year)})</td>
+                    <td>${escapeHtml(r.achievement_title)}${extra ? ` <small>(+${extra} photos)</small>` : ""}</td>
+                    <td>${status}</td>
+                    <td>
+                        <button type="button" class="admin-action-btn" onclick="beginEditGallery('${safeId}')">✏️ Edit</button>
+                        <button type="button" class="admin-action-btn" onclick="toggleGalleryPublished('${safeId}')">${r.is_published ? "🙈 Hide" : "👁️ Publish"}</button>
+                        <button type="button" class="admin-action-btn" onclick="deleteAdminGallery('${safeId}')">🗑️ Delete</button>
+                    </td>
+                </tr>`;
+            }).join("");
+        }
+
+        function renderGalleryFormExtraImages() {
+            const list = document.getElementById("admGalExtraList");
+            if (!list) return;
+            list.innerHTML = galleryFormExtraImages.map((url, i) => `
+                <div class="admin-gallery-extra-item">
+                    <img src="${escapeHtml(url)}" alt="Extra photo ${i + 1}">
+                    <button type="button" aria-label="Remove photo ${i + 1}" onclick="removeGalleryExtraImage(${i})">&times;</button>
+                </div>`).join("");
+        }
+
+        function removeGalleryExtraImage(index) {
+            galleryFormExtraImages.splice(index, 1);
+            renderGalleryFormExtraImages();
+        }
+
+        function openGalleryFormModal(row = null) {
+            const modal = document.getElementById("galleryFormModal");
+            if (!modal) return;
+            const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value ?? ""; };
+            document.getElementById("galleryFormTitle").textContent = row ? "Edit Gallery Entry" : "Add Student to Gallery";
+            set("editingGalleryId", row?.id || "");
+            set("admGalName", row?.student_name);
+            set("admGalFather", row?.father_name);
+            set("admGalCourse", row?.course_title);
+            set("admGalBatch", row?.batch_year);
+            set("admGalCity", row?.city);
+            set("admGalResult", row?.result_grade);
+            set("admGalCategory", row?.category || "Achievement");
+            set("admGalTitle", row?.achievement_title);
+            set("admGalDetails", row?.achievement_details);
+            set("admGalImage", row?.image_url);
+            document.getElementById("admGalFeatured").checked = !!row?.is_featured;
+            document.getElementById("admGalPublished").checked = row ? !!row.is_published : true;
+
+            const fileInput = document.getElementById("admGalImageFile");
+            const extraInput = document.getElementById("admGalExtraFiles");
+            if (fileInput) fileInput.value = "";
+            if (extraInput) extraInput.value = "";
+            document.getElementById("admGalUploadStatus").textContent = "";
+            document.getElementById("admGalExtraStatus").textContent = "";
+
+            const preview = document.getElementById("admGalImagePreview");
+            const mainUrl = gallerySafeImageUrl(row?.image_url);
+            preview.src = mainUrl;
+            preview.style.display = mainUrl ? "block" : "none";
+
+            galleryFormExtraImages = galleryExtraImages(row);
+            renderGalleryFormExtraImages();
+            modal.classList.add("open");
+        }
+
+        function closeGalleryFormModal() {
+            document.getElementById("galleryFormModal")?.classList.remove("open");
+            document.getElementById("adminGalleryForm")?.reset();
+            document.getElementById("editingGalleryId").value = "";
+            const preview = document.getElementById("admGalImagePreview");
+            if (preview) { preview.src = ""; preview.style.display = "none"; }
+            document.getElementById("admGalUploadStatus").textContent = "";
+            document.getElementById("admGalExtraStatus").textContent = "";
+            galleryFormExtraImages = [];
+            renderGalleryFormExtraImages();
+        }
+
+        function closeGalleryFormOnOverlay(event) {
+            if (event.target.id === "galleryFormModal") closeGalleryFormModal();
+        }
+
+        function beginEditGallery(id) {
+            const row = (adminCache.gallery || []).find((r) => r.id === id);
+            if (!row) {
+                showToast("⚠️ Gallery entry not found.", "warning");
+                return;
+            }
+            openGalleryFormModal(row);
+        }
+
+        async function uploadGalleryImage(file) {
+            if (!GALLERY_ALLOWED_TYPES.includes(file.type)) {
+                return { error: "Only JPG, PNG, WebP or GIF images are allowed." };
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                return { error: "Each image must be under 5MB." };
+            }
+            const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+            const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "jpg";
+            const path = `students/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`;
+            const { error } = await supabaseClient.storage
+                .from(GALLERY_BUCKET)
+                .upload(path, file, { cacheControl: "3600", upsert: false });
+            if (error) return { error: error.message };
+            const { data } = supabaseClient.storage.from(GALLERY_BUCKET).getPublicUrl(path);
+            const url = data && data.publicUrl;
+            return url ? { url } : { error: "Upload worked but no public URL was returned." };
+        }
+
+        async function handleGalleryMainImageSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            const statusEl = document.getElementById("admGalUploadStatus");
+            if (!file) return;
+            if (!(await requireAdminSession())) { event.target.value = ""; return; }
+            statusEl.textContent = "Uploading…";
+            try {
+                const result = await uploadGalleryImage(file);
+                if (result.error) {
+                    statusEl.textContent = `⚠️ ${result.error}`;
+                    event.target.value = "";
+                    return;
+                }
+                document.getElementById("admGalImage").value = result.url;
+                const preview = document.getElementById("admGalImagePreview");
+                preview.src = result.url;
+                preview.style.display = "block";
+                statusEl.textContent = "✅ Photo uploaded. It will be used as the main photo.";
+            } catch (err) {
+                statusEl.textContent = `⚠️ Upload error: ${err.message || err}`;
+            }
+        }
+
+        async function handleGalleryExtraImagesSelect(event) {
+            const files = [...(event.target.files || [])];
+            const statusEl = document.getElementById("admGalExtraStatus");
+            if (!files.length) return;
+            if (!(await requireAdminSession())) { event.target.value = ""; return; }
+            const room = GALLERY_MAX_EXTRA_IMAGES - galleryFormExtraImages.length;
+            if (room <= 0) {
+                statusEl.textContent = `⚠️ You can add up to ${GALLERY_MAX_EXTRA_IMAGES} extra photos.`;
+                event.target.value = "";
+                return;
+            }
+            const batch = files.slice(0, room);
+            let done = 0;
+            const problems = [];
+            for (const file of batch) {
+                statusEl.textContent = `Uploading ${done + 1} of ${batch.length}…`;
+                try {
+                    const result = await uploadGalleryImage(file);
+                    if (result.error) problems.push(`${file.name}: ${result.error}`);
+                    else galleryFormExtraImages.push(result.url);
+                } catch (err) {
+                    problems.push(`${file.name}: ${err.message || err}`);
+                }
+                done += 1;
+                renderGalleryFormExtraImages();
+            }
+            event.target.value = "";
+            const skipped = files.length - batch.length;
+            const notes = [];
+            if (problems.length) notes.push(`⚠️ ${problems.join(" | ")}`);
+            if (skipped > 0) notes.push(`⚠️ ${skipped} photo(s) skipped (limit is ${GALLERY_MAX_EXTRA_IMAGES}).`);
+            statusEl.textContent = notes.length ? notes.join(" ") : "✅ Photos uploaded.";
+        }
+
+        async function handleAdminSaveGallery(event) {
+            event.preventDefault();
+            if (!(await requireAdminSession())) return;
+            const editingId = document.getElementById("editingGalleryId")?.value || "";
+            const read = (id, maxLength, extra = {}) => sanitizeInput(document.getElementById(id)?.value, { maxLength, ...extra });
+            const category = document.getElementById("admGalCategory")?.value;
+            const mainImage = gallerySafeImageUrl(read("admGalImage", 500));
+
+            const payload = {
+                student_name: read("admGalName", 120),
+                father_name: read("admGalFather", 120) || null,
+                course_title: read("admGalCourse", 150),
+                batch_year: read("admGalBatch", 40),
+                city: read("admGalCity", 80) || null,
+                result_grade: read("admGalResult", 60) || null,
+                category: GALLERY_CATEGORIES.includes(category) ? category : "Achievement",
+                achievement_title: read("admGalTitle", 160),
+                achievement_details: read("admGalDetails", 1500, { allowNewlines: true }) || null,
+                image_url: mainImage || null,
+                extra_images: galleryFormExtraImages.map(gallerySafeImageUrl).filter(Boolean),
+                is_featured: !!document.getElementById("admGalFeatured")?.checked,
+                is_published: !!document.getElementById("admGalPublished")?.checked
+            };
+            if (!payload.student_name || !payload.course_title || !payload.batch_year || !payload.achievement_title) {
+                showToast("⚠️ Please fill in student name, course, batch year and achievement title.", "warning");
+                return;
+            }
+            if (String(document.getElementById("admGalImage")?.value || "").trim() && !mainImage) {
+                showToast("⚠️ The image link must start with https://", "warning");
+                return;
+            }
+
+            const btn = document.getElementById("admGalSubmitBtn");
+            setButtonLoading(btn, true, "Saving…");
+            try {
+                let error = null;
+                if (editingId) {
+                    ({ error } = await supabaseClient.from(GALLERY_TABLE).update(payload).eq("id", editingId));
+                } else {
+                    ({ error } = await supabaseClient.from(GALLERY_TABLE).insert(payload));
+                }
+                if (error) {
+                    showToast(`⚠️ Could not save gallery entry: ${error.message}`, "warning");
+                    return;
+                }
+                closeGalleryFormModal();
+                showToast(editingId ? "✅ Gallery entry updated." : "✅ Student added to the gallery.", "success");
+                await refreshAdminDashboard();
+                await logAdminActivity(editingId ? "gallery_updated" : "gallery_created", GALLERY_TABLE, { id: editingId || null, student_name: payload.student_name });
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        }
+
+        async function toggleGalleryPublished(id) {
+            if (!(await requireAdminSession())) return;
+            const row = (adminCache.gallery || []).find((r) => r.id === id);
+            if (!row) return;
+            const next = !row.is_published;
+            const { error } = await supabaseClient.from(GALLERY_TABLE).update({ is_published: next }).eq("id", id);
+            if (error) {
+                showToast(`⚠️ Could not update visibility: ${error.message}`, "warning");
+                return;
+            }
+            row.is_published = next;
+            renderAdminGalleryTable();
+            showToast(next ? "✅ Entry is now visible on the website." : "✅ Entry is now hidden from the website.", "success");
+            await logAdminActivity(next ? "gallery_published" : "gallery_hidden", GALLERY_TABLE, { id });
+        }
+
+        async function deleteAdminGallery(id) {
+            if (!(await requireAdminSession())) return;
+            const row = (adminCache.gallery || []).find((r) => r.id === id);
+            if (!window.confirm("Delete this gallery entry and its photos permanently?")) return;
+            const { error } = await supabaseClient.from(GALLERY_TABLE).delete().eq("id", id);
+            if (error) {
+                showToast(`⚠️ Could not delete gallery entry: ${error.message}`, "warning");
+                return;
+            }
+            // Best effort: also remove the uploaded files from storage
+            try {
+                const marker = `/object/public/${GALLERY_BUCKET}/`;
+                const paths = galleryAllImages(row)
+                    .filter((u) => u.includes(marker))
+                    .map((u) => decodeURIComponent(u.split(marker)[1].split("?")[0]));
+                if (paths.length) await supabaseClient.storage.from(GALLERY_BUCKET).remove(paths);
+            } catch (err) {
+                console.warn("[Gallery] storage cleanup skipped:", err);
+            }
+            adminCache.gallery = (adminCache.gallery || []).filter((r) => r.id !== id);
+            renderAdminGalleryTable();
+            showToast("✅ Gallery entry deleted.", "success");
+            await logAdminActivity("gallery_deleted", GALLERY_TABLE, { id });
+        }
+
+        // =====================================================================
+        // News & Achievements (public news.html, /news/<slug>, home teaser + admin CRUD)
+        // =====================================================================
+        const NEWS_TABLE = "news_posts";
+        const NEWS_BUCKET = "news-photos";
+        const NEWS_SITE_ORIGIN = "https://spectruminstitute.uk";
+        const NEWS_COLUMNS = "id, slug, title, summary, body, category, student_name, course_title, city, keywords, external_link, author_name, cover_image_url, extra_images, is_featured, is_published, published_at, created_at, updated_at";
+        const NEWS_LIST_COLUMNS = "id, slug, title, summary, category, student_name, course_title, city, cover_image_url, is_featured, published_at";
+        const NEWS_CATEGORIES = ["Student Achievement", "Result", "Job Placement", "Event", "Institute News", "Announcement"];
+        const NEWS_MAX_EXTRA_IMAGES = 8;
+        const NEWS_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+        let newsRows = [];
+        const newsFilters = { q: "", category: "" };
+        let newsFormExtraImages = [];
+
+        function newsSafeUrl(value) {
+            const url = String(value || "").trim();
+            return /^https:\/\/[^\s"'<>]+$/i.test(url) ? url : "";
+        }
+
+        function newsExtraImages(row) {
+            const list = Array.isArray(row?.extra_images) ? row.extra_images : [];
+            return list.map(newsSafeUrl).filter(Boolean);
+        }
+
+        function newsPostPath(slug) {
+            return `/news/${encodeURIComponent(slug)}`;
+        }
+
+        function newsPostUrl(slug) {
+            return `${NEWS_SITE_ORIGIN}${newsPostPath(slug)}`;
+        }
+
+        function newsSlugify(value, keepTrailingDash = false) {
+            let slug = String(value || "")
+                .normalize("NFKD")
+                .replace(/[̀-ͯ]/g, "")
+                .toLowerCase()
+                .replace(/&/g, " and ")
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+/, "")
+                .replace(/-{2,}/g, "-");
+            if (!keepTrailingDash) slug = slug.replace(/-+$/, "");
+            return slug.slice(0, 90);
+        }
+
+        /** Light cleaner for long-form story text: strips markup and control chars, keeps normal prose intact. */
+        function newsCleanText(value, maxLength, allowNewlines = false) {
+            let text = String(value ?? "");
+            text = text.replace(/<\s*(script|style|iframe)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, "");
+            text = text.replace(/<[^>]*>/g, "");
+            text = text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, "");
+            text = text.replace(/[<>]/g, "");
+            if (allowNewlines) {
+                text = text.replace(/\r\n?/g, "\n").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n");
+            } else {
+                text = text.replace(/\s+/g, " ");
+            }
+            text = text.trim();
+            return text.length > maxLength ? text.slice(0, maxLength).trim() : text;
+        }
+
+        function newsFormatDate(value) {
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return "";
+            return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+        }
+
+        function newsReadingMinutes(body) {
+            const words = String(body || "").trim().split(/\s+/).filter(Boolean).length;
+            return Math.max(1, Math.round(words / 200));
+        }
+
+        /** Escape text, then turn bare https:// links into anchors. */
+        function newsLinkify(text) {
+            return escapeHtml(text).replace(/https:\/\/[^\s<]+[^\s<.,;:!?)'"]/g, (url) => {
+                const href = url.replace(/&amp;/g, "&");
+                return newsSafeUrl(href)
+                    ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener">${url}</a>`
+                    : url;
+            });
+        }
+
+        /** Story text -> HTML. Blank line = new paragraph, "## " = sub-heading, "- " = bullet. */
+        function renderNewsBody(body) {
+            const blocks = String(body || "").replace(/\r\n?/g, "\n").split(/\n{2,}/);
+            const html = [];
+            blocks.forEach((block) => {
+                const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+                if (!lines.length) return;
+                let para = [];
+                let list = [];
+                const flushPara = () => { if (para.length) { html.push(`<p>${para.map(newsLinkify).join("<br>")}</p>`); para = []; } };
+                const flushList = () => { if (list.length) { html.push(`<ul>${list.map((li) => `<li>${newsLinkify(li)}</li>`).join("")}</ul>`); list = []; } };
+                lines.forEach((line) => {
+                    if (/^#{2,3}\s+/.test(line)) {
+                        flushPara(); flushList();
+                        html.push(`<h2>${escapeHtml(line.replace(/^#{2,3}\s+/, ""))}</h2>`);
+                    } else if (/^[-*•]\s+/.test(line)) {
+                        flushPara();
+                        list.push(line.replace(/^[-*•]\s+/, ""));
+                    } else {
+                        flushList();
+                        para.push(line);
+                    }
+                });
+                flushPara(); flushList();
+            });
+            return html.join("\n");
+        }
+
+        function newsCardHtml(r, headingTag = "h3") {
+            const img = newsSafeUrl(r.cover_image_url);
+            const photo = img
+                ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(r.title)}" loading="lazy">`
+                : `<span class="news-card-placeholder" aria-hidden="true">TSI</span>`;
+            const meta = [r.student_name, r.course_title].filter((v) => String(v || "").trim()).map(escapeHtml).join(" · ");
+            return `<article class="news-card${r.is_featured ? " is-featured" : ""}">
+                <a class="news-card-link" href="${escapeHtml(newsPostPath(r.slug))}">
+                    <div class="news-card-photo">${photo}${r.is_featured ? `<span class="news-card-flag">Featured</span>` : ""}</div>
+                    <div class="news-card-body">
+                        <p class="news-card-top"><span class="news-card-category">${escapeHtml(r.category)}</span><time datetime="${escapeHtml(r.published_at)}">${escapeHtml(newsFormatDate(r.published_at))}</time></p>
+                        <${headingTag} class="news-card-title">${escapeHtml(r.title)}</${headingTag}>
+                        ${meta ? `<p class="news-card-meta">${meta}</p>` : ""}
+                        <p class="news-card-summary">${escapeHtml(r.summary)}</p>
+                        <span class="news-card-more">Read the full story →</span>
+                    </div>
+                </a>
+            </article>`;
+        }
+
+        async function fetchPublicNewsList(limit = 200) {
+            if (!supabaseClient) return null;
+            const { data, error } = await supabaseClient
+                .from(NEWS_TABLE)
+                .select(NEWS_LIST_COLUMNS)
+                .eq("is_published", true)
+                .lte("published_at", new Date().toISOString())
+                .order("is_featured", { ascending: false })
+                .order("published_at", { ascending: false })
+                .limit(limit);
+            if (error) {
+                console.warn("[News] list fetch failed (run supabase/news_schema.sql if the table is missing):", error);
+                return null;
+            }
+            return data || [];
+        }
+
+        function injectJsonLd(id, data) {
+            let el = document.getElementById(id);
+            if (!el) {
+                el = document.createElement("script");
+                el.type = "application/ld+json";
+                el.id = id;
+                document.head.appendChild(el);
+            }
+            el.textContent = JSON.stringify(data).replace(/</g, "\\u003c");
+        }
+
+        // ---------- news.html ----------
+        function renderNewsListPage() {
+            const grid = document.getElementById("newsGrid");
+            const countEl = document.getElementById("newsCount");
+            const chips = document.getElementById("newsCategoryChips");
+            if (!grid) return;
+
+            if (chips) {
+                const cats = NEWS_CATEGORIES.filter((c) => newsRows.some((r) => r.category === c));
+                if (newsFilters.category && !cats.includes(newsFilters.category)) newsFilters.category = "";
+                chips.innerHTML = cats.length > 1
+                    ? ["", ...cats].map((c) => `<button type="button" class="gallery-chip" data-news-category="${escapeHtml(c)}" aria-pressed="${newsFilters.category === c ? "true" : "false"}">${c ? escapeHtml(c) : "All"}</button>`).join("")
+                    : "";
+            }
+
+            const q = newsFilters.q.trim().toLowerCase();
+            const list = newsRows.filter((r) => {
+                if (newsFilters.category && r.category !== newsFilters.category) return false;
+                if (!q) return true;
+                return [r.title, r.summary, r.student_name, r.course_title, r.city, r.category]
+                    .map((v) => String(v || "").toLowerCase()).join(" ").includes(q);
+            });
+
+            if (countEl) {
+                countEl.textContent = newsRows.length
+                    ? `Showing ${list.length} of ${newsRows.length} ${newsRows.length === 1 ? "story" : "stories"}`
+                    : "";
+            }
+            if (!newsRows.length) {
+                grid.innerHTML = `<p class="gallery-empty">No news yet. Stories about our students and the institute will appear here soon.</p>`;
+                return;
+            }
+            if (!list.length) {
+                grid.innerHTML = `<p class="gallery-empty">No stories match your search. Try a different name or category.</p>`;
+                return;
+            }
+            grid.innerHTML = list.map((r) => newsCardHtml(r, "h2")).join("");
+
+            injectJsonLd("newsListJsonLd", {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "name": "News & Achievements | The Spectrum Institute",
+                "itemListElement": newsRows.slice(0, 50).map((r, i) => ({
+                    "@type": "ListItem",
+                    "position": i + 1,
+                    "url": newsPostUrl(r.slug),
+                    "name": r.title
+                }))
+            });
+        }
+
+        async function initPublicNewsList() {
+            const grid = document.getElementById("newsGrid");
+            if (!grid) return;
+            if (!supabaseClient) {
+                grid.innerHTML = `<p class="gallery-empty">News is unavailable right now. Please check your connection and try again.</p>`;
+                return;
+            }
+            let timer = null;
+            document.getElementById("newsSearch")?.addEventListener("input", (event) => {
+                clearTimeout(timer);
+                const value = event.target.value;
+                timer = setTimeout(() => { newsFilters.q = value; renderNewsListPage(); }, 150);
+            });
+            document.getElementById("newsCategoryChips")?.addEventListener("click", (event) => {
+                const chip = event.target.closest("[data-news-category]");
+                if (!chip) return;
+                newsFilters.category = chip.getAttribute("data-news-category") || "";
+                renderNewsListPage();
+            });
+
+            const rows = await fetchPublicNewsList();
+            if (rows === null) {
+                grid.innerHTML = `<p class="gallery-empty">News could not be loaded. Please try again in a few minutes.</p>`;
+                window.prerenderReady = true;
+                return;
+            }
+            newsRows = rows;
+            renderNewsListPage();
+            window.prerenderReady = true;
+        }
+
+        // ---------- Home page teaser ----------
+        async function initHomeNewsTeaser() {
+            const wrap = document.getElementById("homeNewsList");
+            if (!wrap) return;
+            const section = document.getElementById("homeNewsSection");
+            const rows = await fetchPublicNewsList(3);
+            if (!rows || !rows.length) {
+                if (section) section.hidden = true;
+                return;
+            }
+            if (section) section.hidden = false;
+            wrap.innerHTML = rows.map((r) => newsCardHtml(r, "h3")).join("");
+        }
+
+        // ---------- Single post page (news-post.html, served at /news/<slug>) ----------
+        function getNewsSlugFromLocation() {
+            const params = new URLSearchParams(window.location.search);
+            const fromQuery = params.get("slug") || params.get("post");
+            if (fromQuery) return newsSlugify(fromQuery);
+            const m = String(window.location.pathname || "").match(/\/news\/([^/?#]+)\/?$/i);
+            return m ? newsSlugify(decodeURIComponent(m[1])) : "";
+        }
+
+        function setMetaTag(attr, key, content) {
+            let el = document.head.querySelector(`meta[${attr}="${key}"]`);
+            if (!el) {
+                el = document.createElement("meta");
+                el.setAttribute(attr, key);
+                document.head.appendChild(el);
+            }
+            el.setAttribute("content", content);
+        }
+
+        function applyNewsPostSeo(post) {
+            const url = newsPostUrl(post.slug);
+            const image = newsSafeUrl(post.cover_image_url) || `${NEWS_SITE_ORIGIN}/logo.png`;
+            const pageTitle = `${post.title} | The Spectrum Institute`;
+            const keywords = [post.keywords, post.student_name, post.course_title, post.city, "The Spectrum Institute", "Swat"]
+                .filter((v) => String(v || "").trim()).join(", ");
+
+            document.title = pageTitle;
+            setMetaTag("name", "description", post.summary);
+            setMetaTag("name", "keywords", keywords);
+            setMetaTag("name", "robots", "index, follow, max-image-preview:large");
+            setMetaTag("property", "og:type", "article");
+            setMetaTag("property", "og:title", post.title);
+            setMetaTag("property", "og:description", post.summary);
+            setMetaTag("property", "og:url", url);
+            setMetaTag("property", "og:image", image);
+            setMetaTag("property", "article:published_time", new Date(post.published_at).toISOString());
+            setMetaTag("property", "article:modified_time", new Date(post.updated_at || post.published_at).toISOString());
+            setMetaTag("property", "article:section", post.category);
+            setMetaTag("name", "twitter:card", "summary_large_image");
+            setMetaTag("name", "twitter:title", post.title);
+            setMetaTag("name", "twitter:description", post.summary);
+            setMetaTag("name", "twitter:image", image);
+
+            let canonical = document.head.querySelector('link[rel="canonical"]');
+            if (!canonical) {
+                canonical = document.createElement("link");
+                canonical.rel = "canonical";
+                document.head.appendChild(canonical);
+            }
+            canonical.href = url;
+
+            const org = {
+                "@type": "EducationalOrganization",
+                "@id": `${NEWS_SITE_ORIGIN}/#organization`,
+                "name": "The Spectrum Institute",
+                "alternateName": "TSI Spectrum",
+                "url": `${NEWS_SITE_ORIGIN}/`,
+                "logo": { "@type": "ImageObject", "url": `${NEWS_SITE_ORIGIN}/logo.png` },
+                "address": { "@type": "PostalAddress", "addressLocality": "Barikot, Swat", "addressRegion": "Khyber Pakhtunkhwa", "addressCountry": "PK" }
+            };
+            const article = {
+                "@type": "NewsArticle",
+                "@id": `${url}#article`,
+                "mainEntityOfPage": { "@type": "WebPage", "@id": url },
+                "headline": post.title.slice(0, 110),
+                "description": post.summary,
+                "image": [image, ...newsExtraImages(post)].slice(0, 5),
+                "datePublished": new Date(post.published_at).toISOString(),
+                "dateModified": new Date(post.updated_at || post.published_at).toISOString(),
+                "articleSection": post.category,
+                "inLanguage": "en",
+                "author": post.author_name && post.author_name !== "The Spectrum Institute"
+                    ? { "@type": "Person", "name": post.author_name, "worksFor": { "@id": org["@id"] } }
+                    : { "@id": org["@id"] },
+                "publisher": { "@id": org["@id"] },
+                "isAccessibleForFree": true
+            };
+            if (keywords) article.keywords = keywords;
+            if (post.student_name) {
+                const person = {
+                    "@type": "Person",
+                    "name": post.student_name,
+                    "alumniOf": { "@id": org["@id"] }
+                };
+                if (post.city) person.homeLocation = { "@type": "Place", "name": post.city };
+                if (newsSafeUrl(post.external_link)) person.sameAs = [newsSafeUrl(post.external_link)];
+                article.about = person;
+                article.mentions = [person];
+            }
+            const breadcrumbs = {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    { "@type": "ListItem", "position": 1, "name": "Home", "item": `${NEWS_SITE_ORIGIN}/` },
+                    { "@type": "ListItem", "position": 2, "name": "News", "item": `${NEWS_SITE_ORIGIN}/news.html` },
+                    { "@type": "ListItem", "position": 3, "name": post.title, "item": url }
+                ]
+            };
+            injectJsonLd("newsPostJsonLd", { "@context": "https://schema.org", "@graph": [org, article, breadcrumbs] });
+        }
+
+        function renderNewsPost(post, related) {
+            const root = document.getElementById("newsArticle");
+            if (!root) return;
+            const url = newsPostUrl(post.slug);
+            const cover = newsSafeUrl(post.cover_image_url);
+            const extras = newsExtraImages(post);
+            const facts = [
+                ["Student", post.student_name],
+                ["Course", post.course_title],
+                ["City", post.city]
+            ].filter(([, v]) => String(v || "").trim());
+            const link = newsSafeUrl(post.external_link);
+            const shareText = encodeURIComponent(`${post.title} ${url}`);
+            const updated = post.updated_at && (new Date(post.updated_at) - new Date(post.published_at)) > 86400000
+                ? ` · Updated <time datetime="${escapeHtml(post.updated_at)}">${escapeHtml(newsFormatDate(post.updated_at))}</time>`
+                : "";
+
+            root.innerHTML = `
+                <nav class="news-crumbs" aria-label="Breadcrumb"><a href="/index.html">Home</a> <span aria-hidden="true">/</span> <a href="/news.html">News</a></nav>
+                <div class="news-post-header">
+                    <p class="news-post-category">${escapeHtml(post.category)}</p>
+                    <h1 class="news-post-title">${escapeHtml(post.title)}</h1>
+                    <p class="news-post-summary">${escapeHtml(post.summary)}</p>
+                    <p class="news-post-byline">By ${escapeHtml(post.author_name || "The Spectrum Institute")} · <time datetime="${escapeHtml(post.published_at)}">${escapeHtml(newsFormatDate(post.published_at))}</time>${updated} · ${newsReadingMinutes(post.body)} min read</p>
+                </div>
+                ${cover ? `<figure class="news-post-cover"><img src="${escapeHtml(cover)}" alt="${escapeHtml(post.student_name ? `${post.student_name}, ${post.title}` : post.title)}"></figure>` : ""}
+                ${facts.length ? `<dl class="news-post-facts">${facts.map(([k, v]) => `<div><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`).join("")}</dl>` : ""}
+                <div class="news-post-body">${renderNewsBody(post.body)}</div>
+                ${link ? `<p class="news-post-link"><a href="${escapeHtml(link)}" target="_blank" rel="noopener">See the related link ↗</a></p>` : ""}
+                ${extras.length ? `<div class="news-post-photos">${extras.map((u, i) => `<a href="${escapeHtml(u)}" target="_blank" rel="noopener"><img src="${escapeHtml(u)}" alt="${escapeHtml(post.title)}, photo ${i + 2}" loading="lazy"></a>`).join("")}</div>` : ""}
+                <div class="news-share" aria-label="Share this story">
+                    <span>Share this story</span>
+                    <a href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener">WhatsApp</a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener">Facebook</a>
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}" target="_blank" rel="noopener">LinkedIn</a>
+                    <button type="button" id="newsCopyLink">Copy link</button>
+                </div>
+                ${related.length ? `<section class="news-related" aria-labelledby="newsRelatedHeading"><h2 id="newsRelatedHeading">More stories</h2><div class="news-grid">${related.map((r) => newsCardHtml(r, "h3")).join("")}</div></section>` : ""}`;
+
+            document.getElementById("newsCopyLink")?.addEventListener("click", async (event) => {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    event.target.textContent = "Link copied";
+                } catch {
+                    window.prompt("Copy this link:", url);
+                }
+            });
+        }
+
+        function renderNewsNotFound(message) {
+            const root = document.getElementById("newsArticle");
+            setMetaTag("name", "robots", "noindex, follow");
+            document.title = "Story not found | The Spectrum Institute";
+            if (root) {
+                root.innerHTML = `<div class="news-missing"><h1>Story not found</h1><p>${escapeHtml(message)}</p><a class="cta-btn" href="/news.html">See all news</a></div>`;
+            }
+        }
+
+        async function initPublicNewsPost() {
+            const root = document.getElementById("newsArticle");
+            if (!root) return;
+            const slug = getNewsSlugFromLocation();
+            if (!slug) {
+                renderNewsNotFound("This link does not point to a story.");
+                window.prerenderReady = true;
+                return;
+            }
+            if (!supabaseClient) {
+                renderNewsNotFound("News is unavailable right now. Please check your connection and try again.");
+                window.prerenderReady = true;
+                return;
+            }
+            const { data, error } = await supabaseClient
+                .from(NEWS_TABLE)
+                .select(NEWS_COLUMNS)
+                .eq("slug", slug)
+                .eq("is_published", true)
+                .maybeSingle();
+            if (error || !data) {
+                if (error) console.warn("[News] post fetch failed:", error);
+                renderNewsNotFound("This story may have been moved or removed.");
+                window.prerenderReady = true;
+                return;
+            }
+            // Move ?slug= links onto the clean /news/<slug> address
+            if (!/\/news\//i.test(window.location.pathname) && /^https?:$/.test(window.location.protocol) && window.location.hostname.endsWith("spectruminstitute.uk")) {
+                history.replaceState(null, "", newsPostPath(data.slug));
+            }
+            const others = (await fetchPublicNewsList(4)) || [];
+            const related = others.filter((r) => r.slug !== data.slug).slice(0, 3);
+            applyNewsPostSeo(data);
+            renderNewsPost(data, related);
+            window.prerenderReady = true;
+        }
+
+        // ---------- Admin manager ----------
+        function renderAdminNewsTable() {
+            const body = document.getElementById("adminNewsBody");
+            if (!body) return;
+            const rows = adminCache.news || [];
+            if (!rows.length) {
+                body.innerHTML = `<tr><td colspan="6" class="admin-table-empty">No posts yet. Click New Post to write your first story.</td></tr>`;
+                return;
+            }
+            body.innerHTML = rows.map((r) => {
+                const safeId = escapeJsString(r.id);
+                const img = newsSafeUrl(r.cover_image_url);
+                const thumb = img
+                    ? `<img class="admin-gallery-thumb" src="${escapeHtml(img)}" alt="">`
+                    : `<span class="admin-gallery-thumb">TSI</span>`;
+                const status = r.is_published
+                    ? `<span class="admin-gallery-badge">Published</span>`
+                    : `<span class="admin-gallery-badge is-off">Draft</span>`;
+                const view = r.is_published
+                    ? `<a class="admin-action-btn" href="${escapeHtml(newsPostPath(r.slug))}" target="_blank" rel="noopener">🔗 View</a>`
+                    : "";
+                return `<tr>
+                    <td>${thumb}</td>
+                    <td>${escapeHtml(r.title)}${r.is_featured ? ` <span class="admin-gallery-badge">Featured</span>` : ""}<br><small>/news/${escapeHtml(r.slug)}</small></td>
+                    <td>${escapeHtml(r.category)}</td>
+                    <td>${escapeHtml(newsFormatDate(r.published_at))}</td>
+                    <td>${status}</td>
+                    <td>
+                        ${view}
+                        <button type="button" class="admin-action-btn" onclick="beginEditNews('${safeId}')">✏️ Edit</button>
+                        <button type="button" class="admin-action-btn" onclick="toggleNewsPublished('${safeId}')">${r.is_published ? "🙈 Unpublish" : "👁️ Publish"}</button>
+                        <button type="button" class="admin-action-btn" onclick="deleteAdminNews('${safeId}')">🗑️ Delete</button>
+                    </td>
+                </tr>`;
+            }).join("");
+        }
+
+        function updateNewsCounters() {
+            const title = document.getElementById("admNewsTitle")?.value || "";
+            const summary = document.getElementById("admNewsSummary")?.value || "";
+            const body = document.getElementById("admNewsBody")?.value || "";
+            const tEl = document.getElementById("admNewsTitleCount");
+            const sEl = document.getElementById("admNewsSummaryCount");
+            const bEl = document.getElementById("admNewsBodyCount");
+            if (tEl) tEl.textContent = `${title.length} characters. Put the student's full name and what they did in the headline; 50 to 70 characters is ideal for Google.`;
+            if (sEl) sEl.textContent = `${summary.length} / 300 characters. 120 to 160 is ideal.`;
+            const words = body.trim().split(/\s+/).filter(Boolean).length;
+            if (bEl) bEl.textContent = `${words} words. Detailed stories (300+ words) rank better: who, what, when, where, how, and a quote from the student or teacher.`;
+        }
+
+        function syncNewsSlugFromTitle() {
+            const slugEl = document.getElementById("admNewsSlug");
+            const titleEl = document.getElementById("admNewsTitle");
+            if (slugEl && titleEl && slugEl.dataset.touched !== "1" && !document.getElementById("editingNewsId")?.value) {
+                slugEl.value = newsSlugify(titleEl.value);
+            }
+            updateNewsCounters();
+        }
+
+        function renderNewsFormExtraImages() {
+            const list = document.getElementById("admNewsExtraList");
+            if (!list) return;
+            list.innerHTML = newsFormExtraImages.map((url, i) => `
+                <div class="admin-gallery-extra-item">
+                    <img src="${escapeHtml(url)}" alt="Extra photo ${i + 1}">
+                    <button type="button" aria-label="Remove photo ${i + 1}" onclick="removeNewsExtraImage(${i})">&times;</button>
+                </div>`).join("");
+        }
+
+        function removeNewsExtraImage(index) {
+            newsFormExtraImages.splice(index, 1);
+            renderNewsFormExtraImages();
+        }
+
+        function openNewsFormModal(row = null) {
+            const modal = document.getElementById("newsFormModal");
+            if (!modal) return;
+            const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value ?? ""; };
+            document.getElementById("newsFormTitle").textContent = row ? "Edit Post" : "New Post";
+            set("editingNewsId", row?.id || "");
+            set("admNewsTitle", row?.title);
+            set("admNewsSlug", row?.slug);
+            const slugEl = document.getElementById("admNewsSlug");
+            if (slugEl) slugEl.dataset.touched = row ? "1" : "";
+            set("admNewsCategory", row?.category || "Student Achievement");
+            set("admNewsDate", (row?.published_at ? new Date(row.published_at) : new Date()).toISOString().slice(0, 10));
+            set("admNewsStudent", row?.student_name);
+            set("admNewsCourse", row?.course_title);
+            set("admNewsCity", row?.city);
+            set("admNewsAuthor", row?.author_name || "The Spectrum Institute");
+            set("admNewsSummary", row?.summary);
+            set("admNewsBody", row?.body);
+            set("admNewsKeywords", row?.keywords);
+            set("admNewsLink", row?.external_link);
+            set("admNewsImage", row?.cover_image_url);
+            document.getElementById("admNewsFeatured").checked = !!row?.is_featured;
+            document.getElementById("admNewsPublished").checked = row ? !!row.is_published : true;
+
+            ["admNewsImageFile", "admNewsExtraFiles"].forEach((id) => { const el = document.getElementById(id); if (el) el.value = ""; });
+            document.getElementById("admNewsUploadStatus").textContent = "";
+            document.getElementById("admNewsExtraStatus").textContent = "";
+            const preview = document.getElementById("admNewsImagePreview");
+            const img = newsSafeUrl(row?.cover_image_url);
+            preview.src = img;
+            preview.style.display = img ? "block" : "none";
+
+            newsFormExtraImages = newsExtraImages(row);
+            renderNewsFormExtraImages();
+            updateNewsCounters();
+            modal.classList.add("open");
+        }
+
+        function closeNewsFormModal() {
+            document.getElementById("newsFormModal")?.classList.remove("open");
+            document.getElementById("adminNewsForm")?.reset();
+            document.getElementById("editingNewsId").value = "";
+            const preview = document.getElementById("admNewsImagePreview");
+            if (preview) { preview.src = ""; preview.style.display = "none"; }
+            newsFormExtraImages = [];
+            renderNewsFormExtraImages();
+        }
+
+        function closeNewsFormOnOverlay(event) {
+            if (event.target.id === "newsFormModal") closeNewsFormModal();
+        }
+
+        function beginEditNews(id) {
+            const row = (adminCache.news || []).find((r) => r.id === id);
+            if (!row) {
+                showToast("⚠️ Post not found.", "warning");
+                return;
+            }
+            openNewsFormModal(row);
+        }
+
+        async function uploadNewsImage(file) {
+            if (!NEWS_ALLOWED_TYPES.includes(file.type)) return { error: "Only JPG, PNG or WebP images are allowed." };
+            if (file.size > 5 * 1024 * 1024) return { error: "Each image must be under 5MB." };
+            const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+            const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "jpg";
+            const base = newsSlugify(document.getElementById("admNewsSlug")?.value || "post").slice(0, 50) || "post";
+            const path = `posts/${base}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${safeExt}`;
+            const { error } = await supabaseClient.storage
+                .from(NEWS_BUCKET)
+                .upload(path, file, { cacheControl: "31536000", upsert: false });
+            if (error) return { error: error.message };
+            const { data } = supabaseClient.storage.from(NEWS_BUCKET).getPublicUrl(path);
+            return data?.publicUrl ? { url: data.publicUrl } : { error: "Upload worked but no public URL was returned." };
+        }
+
+        async function handleNewsMainImageSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            const statusEl = document.getElementById("admNewsUploadStatus");
+            if (!file) return;
+            if (!(await requireAdminSession())) { event.target.value = ""; return; }
+            statusEl.textContent = "Uploading…";
+            try {
+                const result = await uploadNewsImage(file);
+                if (result.error) {
+                    statusEl.textContent = `⚠️ ${result.error}`;
+                    event.target.value = "";
+                    return;
+                }
+                document.getElementById("admNewsImage").value = result.url;
+                const preview = document.getElementById("admNewsImagePreview");
+                preview.src = result.url;
+                preview.style.display = "block";
+                statusEl.textContent = "✅ Photo uploaded.";
+            } catch (err) {
+                statusEl.textContent = `⚠️ Upload error: ${err.message || err}`;
+            }
+        }
+
+        async function handleNewsExtraImagesSelect(event) {
+            const files = [...(event.target.files || [])];
+            const statusEl = document.getElementById("admNewsExtraStatus");
+            if (!files.length) return;
+            if (!(await requireAdminSession())) { event.target.value = ""; return; }
+            const room = NEWS_MAX_EXTRA_IMAGES - newsFormExtraImages.length;
+            if (room <= 0) {
+                statusEl.textContent = `⚠️ You can add up to ${NEWS_MAX_EXTRA_IMAGES} extra photos.`;
+                event.target.value = "";
+                return;
+            }
+            const batch = files.slice(0, room);
+            const problems = [];
+            for (let i = 0; i < batch.length; i += 1) {
+                statusEl.textContent = `Uploading ${i + 1} of ${batch.length}…`;
+                try {
+                    const result = await uploadNewsImage(batch[i]);
+                    if (result.error) problems.push(`${batch[i].name}: ${result.error}`);
+                    else newsFormExtraImages.push(result.url);
+                } catch (err) {
+                    problems.push(`${batch[i].name}: ${err.message || err}`);
+                }
+                renderNewsFormExtraImages();
+            }
+            event.target.value = "";
+            const notes = [];
+            if (problems.length) notes.push(`⚠️ ${problems.join(" | ")}`);
+            if (files.length > batch.length) notes.push(`⚠️ ${files.length - batch.length} photo(s) skipped (limit is ${NEWS_MAX_EXTRA_IMAGES}).`);
+            statusEl.textContent = notes.length ? notes.join(" ") : "✅ Photos uploaded.";
+        }
+
+        async function handleAdminSaveNews(event) {
+            event.preventDefault();
+            if (!(await requireAdminSession())) return;
+            const editingId = document.getElementById("editingNewsId")?.value || "";
+            const val = (id) => document.getElementById(id)?.value || "";
+            const category = val("admNewsCategory");
+            const rawImage = val("admNewsImage").trim();
+            const rawLink = val("admNewsLink").trim();
+            const dateStr = val("admNewsDate");
+            const existing = editingId ? (adminCache.news || []).find((r) => r.id === editingId) : null;
+
+            // Keep the original time of day when only the date is unchanged
+            let publishedAt = new Date().toISOString();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                const today = new Date().toISOString().slice(0, 10);
+                if (existing && String(existing.published_at || "").slice(0, 10) === dateStr) publishedAt = existing.published_at;
+                else if (dateStr === today) publishedAt = new Date().toISOString();
+                else publishedAt = new Date(`${dateStr}T09:00:00`).toISOString();
+            }
+
+            const payload = {
+                title: newsCleanText(val("admNewsTitle"), 160),
+                slug: newsSlugify(val("admNewsSlug") || val("admNewsTitle")),
+                category: NEWS_CATEGORIES.includes(category) ? category : "Student Achievement",
+                summary: newsCleanText(val("admNewsSummary"), 300),
+                body: newsCleanText(val("admNewsBody"), 20000, true),
+                student_name: newsCleanText(val("admNewsStudent"), 120) || null,
+                course_title: newsCleanText(val("admNewsCourse"), 150) || null,
+                city: newsCleanText(val("admNewsCity"), 80) || null,
+                author_name: newsCleanText(val("admNewsAuthor"), 120) || "The Spectrum Institute",
+                keywords: newsCleanText(val("admNewsKeywords"), 300) || null,
+                external_link: newsSafeUrl(rawLink) || null,
+                cover_image_url: newsSafeUrl(rawImage) || null,
+                extra_images: newsFormExtraImages.map(newsSafeUrl).filter(Boolean),
+                is_featured: !!document.getElementById("admNewsFeatured")?.checked,
+                is_published: !!document.getElementById("admNewsPublished")?.checked,
+                published_at: publishedAt
+            };
+
+            if (!payload.title || !payload.slug || !payload.summary || !payload.body) {
+                showToast("⚠️ Please fill in the headline, page link, summary and full story.", "warning");
+                return;
+            }
+            if (rawImage && !payload.cover_image_url) {
+                showToast("⚠️ The photo link must start with https://", "warning");
+                return;
+            }
+            if (rawLink && !payload.external_link) {
+                showToast("⚠️ The related link must start with https://", "warning");
+                return;
+            }
+            const clash = (adminCache.news || []).find((r) => r.slug === payload.slug && r.id !== editingId);
+            if (clash) {
+                showToast("⚠️ Another post already uses this page link. Change the link a little (for example add the year).", "warning");
+                return;
+            }
+
+            const btn = document.getElementById("admNewsSubmitBtn");
+            setButtonLoading(btn, true, "Saving…");
+            try {
+                let error = null;
+                if (editingId) {
+                    ({ error } = await supabaseClient.from(NEWS_TABLE).update(payload).eq("id", editingId));
+                } else {
+                    ({ error } = await supabaseClient.from(NEWS_TABLE).insert(payload));
+                }
+                if (error) {
+                    const msg = /duplicate key|unique/i.test(error.message || "")
+                        ? "Another post already uses this page link. Change it a little."
+                        : error.message;
+                    showToast(`⚠️ Could not save post: ${msg}`, "warning");
+                    return;
+                }
+                closeNewsFormModal();
+                showToast(payload.is_published
+                    ? `✅ Post published at /news/${payload.slug}`
+                    : "✅ Post saved as a draft (not visible on the website).", "success");
+                await refreshAdminNews();
+                await logAdminActivity(editingId ? "news_updated" : "news_created", NEWS_TABLE, { id: editingId || null, slug: payload.slug });
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        }
+
+        async function refreshAdminNews() {
+            if (!supabaseClient) return;
+            const { data, error } = await supabaseClient
+                .from(NEWS_TABLE)
+                .select(NEWS_COLUMNS)
+                .order("published_at", { ascending: false });
+            if (error) {
+                console.warn("News load warning (run supabase/news_schema.sql if the table is missing):", error);
+                adminCache.news = [];
+            } else {
+                adminCache.news = data || [];
+            }
+            renderAdminNewsTable();
+        }
+
+        async function toggleNewsPublished(id) {
+            if (!(await requireAdminSession())) return;
+            const row = (adminCache.news || []).find((r) => r.id === id);
+            if (!row) return;
+            const next = !row.is_published;
+            const { error } = await supabaseClient.from(NEWS_TABLE).update({ is_published: next }).eq("id", id);
+            if (error) {
+                showToast(`⚠️ Could not update the post: ${error.message}`, "warning");
+                return;
+            }
+            row.is_published = next;
+            renderAdminNewsTable();
+            showToast(next ? "✅ Post is now live on the website." : "✅ Post is now hidden (draft).", "success");
+            await logAdminActivity(next ? "news_published" : "news_unpublished", NEWS_TABLE, { id });
+        }
+
+        async function deleteAdminNews(id) {
+            if (!(await requireAdminSession())) return;
+            const row = (adminCache.news || []).find((r) => r.id === id);
+            if (!row) return;
+            if (!window.confirm(`Delete "${row.title}" and its photos permanently?`)) return;
+            const { error } = await supabaseClient.from(NEWS_TABLE).delete().eq("id", id);
+            if (error) {
+                showToast(`⚠️ Could not delete post: ${error.message}`, "warning");
+                return;
+            }
+            try {
+                const marker = `/object/public/${NEWS_BUCKET}/`;
+                const paths = [row.cover_image_url, ...newsExtraImages(row)]
+                    .map(newsSafeUrl)
+                    .filter((u) => u && u.includes(marker))
+                    .map((u) => decodeURIComponent(u.split(marker)[1].split("?")[0]));
+                if (paths.length) await supabaseClient.storage.from(NEWS_BUCKET).remove(paths);
+            } catch (err) {
+                console.warn("[News] storage cleanup skipped:", err);
+            }
+            adminCache.news = (adminCache.news || []).filter((r) => r.id !== id);
+            renderAdminNewsTable();
+            showToast("✅ Post deleted.", "success");
+            await logAdminActivity("news_deleted", NEWS_TABLE, { id });
+        }
+
+        /** Build a sitemap.xml with every page plus every published news post, for upload with the site. */
+        async function downloadNewsSitemap() {
+            if (!(await requireAdminSession())) return;
+            const xmlEscape = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            let staticEntries = [];
+            try {
+                const res = await fetch(resolveSiteAsset("sitemap.xml"), { cache: "no-store" });
+                if (res.ok) {
+                    const doc = new DOMParser().parseFromString(await res.text(), "application/xml");
+                    staticEntries = [...doc.getElementsByTagName("url")].map((u) => ({
+                        loc: u.getElementsByTagName("loc")[0]?.textContent?.trim() || "",
+                        changefreq: u.getElementsByTagName("changefreq")[0]?.textContent?.trim() || "monthly",
+                        priority: u.getElementsByTagName("priority")[0]?.textContent?.trim() || "0.8"
+                    })).filter((e) => e.loc && !/\/news\/[^/]+$/.test(e.loc));
+                }
+            } catch (err) {
+                console.warn("[News] could not read current sitemap:", err);
+            }
+            if (!staticEntries.length) {
+                staticEntries = [
+                    { loc: `${NEWS_SITE_ORIGIN}/`, changefreq: "weekly", priority: "1.0" },
+                    { loc: `${NEWS_SITE_ORIGIN}/news.html`, changefreq: "daily", priority: "0.9" }
+                ];
+            }
+            const today = new Date().toISOString().slice(0, 10);
+            const posts = (adminCache.news || []).filter((r) => r.is_published);
+            const lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+            staticEntries.forEach((e) => {
+                lines.push(`  <url>\n    <loc>${xmlEscape(e.loc)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${xmlEscape(e.changefreq)}</changefreq>\n    <priority>${xmlEscape(e.priority)}</priority>\n  </url>`);
+            });
+            posts.forEach((r) => {
+                const mod = String(r.updated_at || r.published_at || "").slice(0, 10) || today;
+                lines.push(`  <url>\n    <loc>${xmlEscape(newsPostUrl(r.slug))}</loc>\n    <lastmod>${mod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`);
+            });
+            lines.push("</urlset>", "");
+            const blob = new Blob([lines.join("\n")], { type: "application/xml" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "sitemap.xml";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+            showToast(`✅ sitemap.xml downloaded with ${posts.length} news ${posts.length === 1 ? "post" : "posts"}. Replace the old one on Netlify.`, "success");
+        }
+
+        // =====================================================================
+        // Online Admissions inbox (admin) — admission forms land in public.leads
+        // =====================================================================
+        const ADMISSION_MESSAGE_MARKERS = ["Online admission request", "Official student admission application"];
+        const ADMISSION_POLL_MS = 45000;
+        let admissionKnownIds = null;          // Set of lead ids already seen this session
+        let admissionAlertsBooted = false;
+        let admissionBaseTitle = "";
+        let admissionUnseenSinceFocus = 0;
+
+        function isAdmissionLead(lead) {
+            const first = String(lead?.message || "").split("\n")[0].trim();
+            return ADMISSION_MESSAGE_MARKERS.some((m) => first.startsWith(m));
+        }
+
+        function getAdmissionLeads() {
+            return (adminCache.leads || []).filter(isAdmissionLead);
+        }
+
+        /** Turn the "Key: value" lines the forms write into an object. */
+        function parseAdmissionDetails(lead) {
+            const lines = String(lead?.message || "").split("\n");
+            const out = { source: lines[0]?.startsWith("Official") ? "Admissions page form" : "Apply Online form" };
+            let lastKey = "";
+            lines.slice(1).forEach((line) => {
+                const m = line.match(/^([^:]{2,40}):\s*(.*)$/);
+                if (m) {
+                    lastKey = m[1].trim();
+                    out[lastKey] = m[2].trim();
+                } else if (lastKey && line.trim()) {
+                    out[lastKey] = `${out[lastKey]}\n${line.trim()}`;
+                }
+            });
+            return out;
+        }
+
+        function admissionWhatsAppLink(phone, name) {
+            const digits = String(phone || "").replace(/[^\d]/g, "");
+            if (digits.length < 9) return "";
+            const intl = digits.startsWith("92") ? digits : digits.replace(/^0/, "92");
+            const text = encodeURIComponent(`Assalam o Alaikum ${name || ""}, this is The Spectrum Institute. We received your online admission application.`);
+            return `https://wa.me/${intl}?text=${text}`;
+        }
+
+        function admissionTimeAgo(value) {
+            const t = new Date(value).getTime();
+            if (!Number.isFinite(t)) return "";
+            const sec = Math.max(0, Math.round((Date.now() - t) / 1000));
+            if (sec < 60) return "just now";
+            const min = Math.round(sec / 60);
+            if (min < 60) return `${min} min ago`;
+            const hr = Math.round(min / 60);
+            if (hr < 24) return `${hr} hour${hr === 1 ? "" : "s"} ago`;
+            const day = Math.round(hr / 24);
+            return day < 30 ? `${day} day${day === 1 ? "" : "s"} ago` : "";
+        }
+
+        function admissionDateTime(value) {
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return "";
+            return d.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
+        }
+
+        function updateAdmissionBadges() {
+            const newCount = getAdmissionLeads().filter((l) => String(l.status || "new").toLowerCase() === "new").length;
+            document.querySelectorAll("[data-admission-badge]").forEach((el) => {
+                el.textContent = newCount > 99 ? "99+" : String(newCount);
+                el.hidden = newCount === 0;
+            });
+            const bar = document.getElementById("admissionAlertBar");
+            const text = document.getElementById("admissionAlertText");
+            if (bar && text) {
+                bar.hidden = newCount === 0;
+                text.textContent = newCount === 1 ? "1 new online admission is waiting" : `${newCount} new online admissions are waiting`;
+            }
+            if (!admissionBaseTitle) admissionBaseTitle = document.title.replace(/^\(\d+\+?\)\s*/, "");
+            document.title = newCount ? `(${newCount}) ${admissionBaseTitle}` : admissionBaseTitle;
+        }
+
+        function renderAdminAdmissions() {
+            updateAdmissionBadges();
+            const list = document.getElementById("admissionList");
+            if (!list) return;
+            const all = getAdmissionLeads();
+            const q = String(document.getElementById("admissionSearch")?.value || "").trim().toLowerCase();
+            const status = document.getElementById("admissionStatusFilter")?.value || "";
+
+            const summary = document.getElementById("admissionSummary");
+            if (summary) {
+                const count = (s) => all.filter((l) => String(l.status || "new").toLowerCase() === s).length;
+                const today = new Date().toDateString();
+                const todayCount = all.filter((l) => new Date(l.created_at).toDateString() === today).length;
+                summary.innerHTML = [
+                    ["New", count("new"), "is-new"],
+                    ["Today", todayCount, ""],
+                    ["Contacted", count("contacted"), ""],
+                    ["Enrolled", count("enrolled"), ""],
+                    ["Total", all.length, ""]
+                ].map(([label, n, cls]) => `<div class="admission-stat ${cls}"><strong>${n}</strong><span>${label}</span></div>`).join("");
+            }
+
+            const rows = all.filter((lead) => {
+                if (status && String(lead.status || "new").toLowerCase() !== status) return false;
+                if (!q) return true;
+                return [lead.full_name, lead.father_name, lead.phone, lead.email, lead.course_interest, lead.message]
+                    .map((v) => String(v || "").toLowerCase()).join(" ").includes(q);
+            });
+
+            if (!all.length) {
+                list.innerHTML = `<p class="admin-table-empty">No online admissions yet. When someone applies on the website, it will appear here.</p>`;
+                return;
+            }
+            if (!rows.length) {
+                list.innerHTML = `<p class="admin-table-empty">No admissions match this search or status.</p>`;
+                return;
+            }
+
+            const statuses = ["new", "contacted", "enrolled", "archived"];
+            list.innerHTML = rows.map((lead) => {
+                const id = escapeJsString(lead.id);
+                const d = parseAdmissionDetails(lead);
+                const st = String(lead.status || "new").toLowerCase();
+                const wa = admissionWhatsAppLink(lead.phone, lead.full_name);
+                const tel = String(lead.phone || "").replace(/[^\d+]/g, "");
+                const guardian = d["Father / Guardian phone"];
+                const facts = [
+                    ["Father", lead.father_name || d.Father],
+                    ["Gender", d.Gender],
+                    ["Date of birth", lead.dob || d.DOB],
+                    ["Education", d.Education],
+                    ["Shift", d["Preferred shift"]],
+                    ["Guardian phone", guardian]
+                ].filter(([, v]) => String(v || "").trim());
+                const ago = admissionTimeAgo(lead.created_at);
+                const realEmail = lead.email && !/^admission\.\d+@tsi\.com$/i.test(lead.email) ? lead.email : "";
+                return `<article class="admission-card${st === "new" ? " is-new" : ""}">
+                    <div class="admission-card-top">
+                        <div>
+                            ${st === "new" ? `<span class="admission-new-tag">NEW</span>` : ""}
+                            <h3>${escapeHtml(lead.full_name || "Unnamed")}</h3>
+                            <p class="admission-course">${escapeHtml(lead.course_interest || "Course not selected")}</p>
+                        </div>
+                        <p class="admission-time" title="${escapeHtml(admissionDateTime(lead.created_at))}">${escapeHtml(ago || admissionDateTime(lead.created_at))}<br><small>${escapeHtml(d.source)}</small></p>
+                    </div>
+                    <dl class="admission-facts">
+                        <div><dt>Phone</dt><dd>${escapeHtml(lead.phone || "—")}</dd></div>
+                        ${realEmail ? `<div><dt>Email</dt><dd>${escapeHtml(realEmail)}</dd></div>` : ""}
+                        ${facts.map(([k, v]) => `<div><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`).join("")}
+                    </dl>
+                    <div class="admission-actions">
+                        ${wa ? `<a class="admin-action-btn admission-wa" href="${escapeHtml(wa)}" target="_blank" rel="noopener" onclick="markAdmissionContacted('${id}')">WhatsApp</a>` : ""}
+                        ${tel ? `<a class="admin-action-btn" href="tel:${escapeHtml(tel)}" onclick="markAdmissionContacted('${id}')">Call</a>` : ""}
+                        <button type="button" class="admin-action-btn" onclick="openAdmissionDetail('${id}')">View full form</button>
+                        ${st === "enrolled"
+                            ? `<span class="admin-action-btn lead-add-btn is-done">Enrolled</span>`
+                            : `<button type="button" class="admin-action-btn lead-add-btn" onclick="promoteLeadToStudent('${id}', this)">+ Add as Student</button>`}
+                        <select class="lead-status-select" aria-label="Status" onchange="updateLeadStatus('${id}', this.value)">
+                            ${statuses.map((s) => `<option value="${s}" ${st === s ? "selected" : ""}>${s}</option>`).join("")}
+                        </select>
+                    </div>
+                </article>`;
+            }).join("");
+        }
+
+        async function markAdmissionContacted(id) {
+            const lead = (adminCache.leads || []).find((l) => l.id === id);
+            if (!lead || String(lead.status || "new").toLowerCase() !== "new") return;
+            lead.status = "contacted";
+            renderAdminAdmissions();
+            try {
+                await supabaseClient.from("leads").update({ status: "contacted" }).eq("id", id);
+            } catch (err) {
+                console.warn("[Admissions] could not mark contacted:", err);
+            }
+        }
+
+        function openAdmissionDetail(id) {
+            const lead = (adminCache.leads || []).find((l) => l.id === id);
+            const modal = document.getElementById("admissionDetailModal");
+            const body = document.getElementById("admissionDetailBody");
+            if (!lead || !modal || !body) return;
+            const d = parseAdmissionDetails(lead);
+            const rows = [
+                ["Name", lead.full_name],
+                ["Father's name", lead.father_name || d.Father],
+                ["Gender", d.Gender],
+                ["Date of birth", lead.dob || d.DOB],
+                ["Phone / WhatsApp", lead.phone],
+                ["Email", lead.email && !/^admission\.\d+@tsi\.com$/i.test(lead.email) ? lead.email : ""],
+                ["Course", lead.course_interest],
+                ["Education", d.Education],
+                ["Preferred shift", d["Preferred shift"]],
+                ["Father / Guardian phone", d["Father / Guardian phone"]],
+                ["Notes", d.Notes && d.Notes !== "None" ? d.Notes : ""],
+                ["Status", lead.status || "new"],
+                ["Received", admissionDateTime(lead.created_at)],
+                ["Form", d.source]
+            ].filter(([, v]) => String(v || "").trim());
+            document.getElementById("admissionDetailTitle").textContent = lead.full_name || "Admission details";
+            body.innerHTML = `<dl class="admission-detail-list">${rows.map(([k, v]) => `<div><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`).join("")}</dl>
+                <div class="admission-actions">
+                    <button type="button" class="admin-action-btn" onclick="copyAdmissionDetails('${escapeJsString(lead.id)}', this)">Copy details</button>
+                    <button type="button" class="admin-action-btn" onclick="window.print()">Print</button>
+                </div>`;
+            modal.classList.add("open");
+        }
+
+        function closeAdmissionDetail() {
+            document.getElementById("admissionDetailModal")?.classList.remove("open");
+        }
+
+        async function copyAdmissionDetails(id, btn) {
+            const lead = (adminCache.leads || []).find((l) => l.id === id);
+            if (!lead) return;
+            const text = [
+                `New admission: ${lead.full_name}`,
+                `Course: ${lead.course_interest || "-"}`,
+                `Phone: ${lead.phone || "-"}`,
+                lead.father_name ? `Father: ${lead.father_name}` : "",
+                lead.message || ""
+            ].filter(Boolean).join("\n");
+            try {
+                await navigator.clipboard.writeText(text);
+                if (btn) btn.textContent = "Copied ✓";
+            } catch {
+                window.prompt("Copy these details:", text);
+            }
+        }
+
+        // ---------- Alerts: sound + pop-up when a new admission arrives ----------
+        function playAdmissionChime() {
+            try {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) return;
+                const ctx = playAdmissionChime.ctx || (playAdmissionChime.ctx = new Ctx());
+                if (ctx.state === "suspended") ctx.resume();
+                [880, 1175].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = "sine";
+                    osc.frequency.value = freq;
+                    const start = ctx.currentTime + i * 0.18;
+                    gain.gain.setValueAtTime(0.0001, start);
+                    gain.gain.exponentialRampToValueAtTime(0.25, start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+                    osc.connect(gain).connect(ctx.destination);
+                    osc.start(start);
+                    osc.stop(start + 0.4);
+                });
+            } catch (err) {
+                console.warn("[Admissions] chime failed:", err);
+            }
+        }
+
+        function syncAdmissionAlertsSetting() {
+            const state = document.getElementById("admissionAlertsState");
+            const btn = document.getElementById("admissionAlertsBtn");
+            if (!state || !btn) return;
+            if (!("Notification" in window)) {
+                state.textContent = "🔔 Sound alerts are on while this page is open. (This browser does not support pop-up notifications.)";
+                btn.hidden = true;
+            } else if (Notification.permission === "granted") {
+                state.textContent = "✅ Alerts are on. You will get a pop-up and sound for every new admission while this dashboard is open (even in another tab).";
+                btn.hidden = true;
+            } else if (Notification.permission === "denied") {
+                state.textContent = "🔕 Pop-ups are blocked for this site in your browser settings. You will still hear a sound while this page is open.";
+                btn.hidden = true;
+            } else {
+                btn.hidden = false;
+            }
+        }
+
+        async function enableAdmissionAlerts() {
+            playAdmissionChime(); // also unlocks audio after a user click
+            if ("Notification" in window && Notification.permission === "default") {
+                try { await Notification.requestPermission(); } catch (_) { /* ignore */ }
+            }
+            syncAdmissionAlertsSetting();
+            if ("Notification" in window && Notification.permission === "granted") {
+                showToast("✅ Admission alerts turned on.", "success");
+            }
+        }
+
+        function announceNewAdmissions(newLeads) {
+            if (!newLeads.length) return;
+            const first = newLeads[0];
+            const title = newLeads.length === 1 ? "New online admission" : `${newLeads.length} new online admissions`;
+            const body = newLeads.length === 1
+                ? `${first.full_name || "Someone"} applied for ${first.course_interest || "a course"}. Phone: ${first.phone || "-"}`
+                : newLeads.map((l) => `${l.full_name} (${l.course_interest || "-"})`).join(", ");
+            showToast(`🎓 ${title}: ${body}`, "success");
+            playAdmissionChime();
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    const n = new Notification(title, { body, icon: resolveSiteAsset("logo.png"), tag: `tsi-admission-${first.id}` });
+                    n.onclick = () => { window.focus(); switchAdminTab("admissions"); n.close(); };
+                } catch (err) {
+                    console.warn("[Admissions] notification failed:", err);
+                }
+            }
+            if (document.hidden) admissionUnseenSinceFocus += newLeads.length;
+        }
+
+        /** Compare against ids we have already seen and alert for genuinely new admissions. */
+        function detectNewAdmissions() {
+            const current = getAdmissionLeads();
+            if (admissionKnownIds === null) {
+                admissionKnownIds = new Set(current.map((l) => l.id));
+                return;
+            }
+            const fresh = current.filter((l) => !admissionKnownIds.has(l.id));
+            fresh.forEach((l) => admissionKnownIds.add(l.id));
+            announceNewAdmissions(fresh);
+        }
+
+        function initAdmissionAlerts() {
+            if (admissionAlertsBooted || !supabaseClient || !document.getElementById("admissionList")) return;
+            admissionAlertsBooted = true;
+            syncAdmissionAlertsSetting();
+            try {
+                supabaseClient
+                    .channel("admin-new-admissions")
+                    .on("postgres_changes", { event: "INSERT", schema: "public", table: "leads" }, () => {
+                        refreshAdminLeads().catch((err) => console.warn("[Admissions] refresh failed:", err));
+                    })
+                    .subscribe();
+            } catch (err) {
+                console.warn("[Admissions] realtime subscribe skipped:", err);
+            }
+            // Backup check in case realtime is not enabled for the leads table
+            setInterval(() => {
+                if (!adminSessionUser) return;
+                refreshAdminLeads().catch(() => {});
+            }, ADMISSION_POLL_MS);
+            // Keep "x min ago" fresh
+            setInterval(() => {
+                if (document.getElementById("adminPanelAdmissions")?.hidden === false) renderAdminAdmissions();
+            }, 60000);
+            document.addEventListener("visibilitychange", () => {
+                if (!document.hidden) admissionUnseenSinceFocus = 0;
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const ctx = getAppContext();
             initThemePreference();
@@ -6356,6 +8173,10 @@ let authListenerBound = false;
                 initVerifyAssistant();
                 await initPublicReviewsModule();
                 await initPublicAlumniDirectory();
+                await initPublicGallery();
+                await initPublicNewsList();
+                await initPublicNewsPost();
+                await initHomeNewsTeaser();
                 return;
             }
 

@@ -115,8 +115,8 @@ end $$;
 -- Optional seed (safe upserts by name+year)
 insert into public.reviews (student_name, rating, review_text, is_approved)
 select * from (values
-    ('Asad Ali', 5, 'TSI se AI Engineering course karne ke baad mujhe online freelancing gigs milna shuru hogaye hain. Barikot me aisi quality learning pehle nahi thi!', true),
-    ('Adnan Khan', 5, 'Maine yahan se NEBOSH IGC ki coaching li aur asani se clear kiya. Management aur teachers bohut professional hain.', true),
-    ('Sana Ullah', 5, 'FSc Physics ki coaching ke liye Engr. Abid Rasheed sab ka koi muqabla nahi. Concepts bilkul crystal clear hojaty hain.', true)
+    ('Asad Ali', 5, 'After completing the AI Engineering course at TSI, I started getting online freelancing gigs. I had never found this quality of learning in Barikot before!', true),
+    ('Adnan Khan', 5, 'I took my NEBOSH IGC coaching here and cleared the exam easily. The management and teachers are very professional.', true),
+    ('Sana Ullah', 5, 'For FSc Physics coaching, Engr. Abid Rasheed is unmatched. Every concept becomes crystal clear.', true)
 ) as v(student_name, rating, review_text, is_approved)
 where not exists (select 1 from public.reviews limit 1);

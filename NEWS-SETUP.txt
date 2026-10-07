@@ -1,0 +1,60 @@
+SETUP: NEWS & ACHIEVEMENTS
+==========================
+
+1) Supabase (one time, SQL Editor):
+   Run supabase/news_schema.sql
+   -> creates the news_posts table, its security rules and the
+      "news-photos" storage bucket.
+
+2) Upload this whole folder to Netlify (replace the old files).
+   The new _redirects file makes clean links work:
+   spectruminstitute.uk/news/<post-link>
+
+3) Write a post: Admin dashboard -> "News & Achievements" -> "New Post".
+   Public pages: news.html (menu: News), each post at /news/<link>,
+   and the 3 latest posts on the home page.
+
+4) For Google and AI search (important):
+   a) Netlify -> Extensions -> install "Prerender". This sends a ready-made
+      copy of each news page to Google, ChatGPT, Perplexity and other bots.
+   b) Google Search Console (search.google.com/search-console):
+      add spectruminstitute.uk, submit sitemap.xml, and after each new post
+      paste its link in "URL inspection" -> "Request indexing".
+   c) Optional: after a few posts, click "Download sitemap.xml" in the News
+      tab and upload it in place of the old sitemap.xml.
+
+TIPS FOR RANKING
+- Put the student's FULL name + what they did + "Swat" in the headline.
+- Write 300+ words: who, what, when, where, how, plus a quote.
+- Add a real photo. Share the link on Facebook / WhatsApp / LinkedIn;
+  links from other sites help a lot.
+- Everything you post is public. No phone numbers or CNIC.
+
+
+AI & IT ACADEMY (SEO UPDATE)
+============================
+- New page: ai-academy-swat.html (menu: Academics -> AI & IT Academy).
+  Built for searches like "best AI academy in Swat", with an FAQ that
+  Google can show directly in results.
+- Home page, courses page, titles and footers now lead with AI & IT.
+- After uploading: in Google Search Console, "Request indexing" for
+  https://spectruminstitute.uk/ and /ai-academy-swat.html, and resubmit sitemap.xml.
+- MOST IMPORTANT for "best ... in Swat" searches: a Google Business Profile
+  (Google Maps listing) with category "Computer training school", photos,
+  and real Google reviews from your AI/IT students that mention the course
+  (e.g. "learned AI Engineering at TSI").
+
+ONLINE ADMISSIONS INBOX (ADMIN PANEL)
+=====================================
+- Admin dashboard -> "Online Admissions" (top of the left menu).
+  Every admission form from the website shows here with all details,
+  a red NEW tag, and WhatsApp / Call / Add as Student buttons.
+- A red number on the tab and in the browser tab title shows how many
+  NEW admissions are waiting. Change the status (or press WhatsApp/Call)
+  to clear it.
+- One time, in Supabase SQL Editor: run supabase/admissions_realtime.sql
+  so new admissions appear instantly. (Without it they still appear,
+  within about 45 seconds.)
+- Click "Turn on alerts" once on each computer/phone you use, and allow
+  notifications. Then you get a pop-up + sound for every new admission
+  while the dashboard is open (even if it is in another tab).

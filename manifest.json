@@ -1,7 +1,7 @@
 {
   "name": "The Spectrum Institute (TSI)",
   "short_name": "TSI Spectrum",
-  "description": "The Spectrum Institute (TSI) Barikot & Mingora, Swat \u2014 AI, Machine Learning, Cyber Security, ICT & Technical Skills education.",
+  "description": "The Spectrum Institute (TSI), Swat \u2014 AI, Machine Learning, Cyber Security, ICT & Technical Skills education.",
   "id": "/",
   "start_url": "/index.html?source=pwa",
   "scope": "/",

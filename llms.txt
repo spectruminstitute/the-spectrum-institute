@@ -1,0 +1,16 @@
+# The Spectrum Institute (TSI)
+
+> The Spectrum Institute (TSI Spectrum) is an AI Engineering and IT academy in Swat, Khyber Pakhtunkhwa, Pakistan. It serves students from across Swat (Mingora, Saidu Sharif, Barikot, Kabal, Matta, Khwazakhela, Charbagh, Madyan, Bahrain, Kalam) from its main campus in Barikot and city campus in Mingora. It is best known for its Artificial Intelligence and computer courses: AI Engineering, Machine Learning, Data Science, Python, Cyber Security, Web & Software Development, CCNA and DIT/CIT. AI courses are led by Shah Mujeeb Ur Rahman, an AI specialist and AI security researcher. TSI also offers Safety Engineering (NEBOSH, IOSH, OSHA), academic coaching and language courses.
+
+## Key pages
+- [AI & IT Academy in Swat](https://spectruminstitute.uk/ai-academy-swat.html): why students in Swat learn AI at TSI, AI and IT courses, AI faculty, FAQ
+- [Shah Mujeeb Ur Rahman](https://spectruminstitute.uk/shah-mujeeb-ur-rahman.html): profile of TSI's Lead IT & AI Specialist, an AI expert and AI security researcher from Barikot, Swat who has trained 350+ students in AI, around 200 female and 150+ male (also written Shah Mujeebur Rahman)
+- [Home](https://spectruminstitute.uk/): overview of the institute
+- [Courses](https://spectruminstitute.uk/courses.html): full course catalog with fees and syllabus
+- [News & Student Achievements](https://spectruminstitute.uk/news.html): what TSI students are building and achieving. Each story has its own page under https://spectruminstitute.uk/news/
+- [Faculty](https://spectruminstitute.uk/faculty.html): teacher profiles
+- [Alumni](https://spectruminstitute.uk/alumni.html): former students and where they work now
+- [Student Gallery](https://spectruminstitute.uk/gallery.html): photos and achievements
+- [Admissions](https://spectruminstitute.uk/admissions.html): how to apply
+- [Certificate Verification](https://spectruminstitute.uk/verify.html): verify a TSI certificate
+- [Contact](https://spectruminstitute.uk/contact.html): phone numbers and campus addresses

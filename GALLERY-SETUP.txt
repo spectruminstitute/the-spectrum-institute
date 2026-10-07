@@ -1,0 +1,19 @@
+SETUP: STUDENT GALLERY + TEXT FIXES
+====================================
+
+1) Supabase (one time, SQL Editor):
+   a) Run supabase/gallery_schema.sql
+      -> creates the student_gallery table, its security rules and the
+         "gallery-photos" storage bucket.
+   b) Run supabase/fix_roman_urdu_reviews.sql
+      -> replaces the 3 sample reviews already in your database with English text.
+
+2) Upload this whole folder to your hosting (replace the old files).
+
+3) Add students: Admin dashboard -> "Student Gallery" tab -> "Add Student to Gallery".
+   Public page: gallery.html (also linked in the menu: Academics -> Gallery).
+
+NOTES
+- Everything entered in the gallery is shown publicly. Do not put phone numbers
+  or CNIC in these fields.
+- service-worker.js cache name changed to v2 so visitors get the new files.

@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Certificate | The Spectrum Institute TSI</title>
+    <title>Verify Certificate | The Spectrum Institute (TSI), Swat</title>
     <meta name="description" content="Verify a Spectrum Institute student certificate online using Certificate ID and identity details.">
     <meta name="author" content="The Spectrum Institute">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="geo.region" content="PK-KP">
-    <meta name="geo.placename" content="Barikot &amp; Mingora, Swat">
+    <meta name="geo.placename" content="Swat, Khyber Pakhtunkhwa">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -26,13 +26,13 @@
     <link rel="canonical" href="https://spectruminstitute.uk/verify.html">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="The Spectrum Institute">
-    <meta property="og:title" content="Verify Certificate | The Spectrum Institute TSI">
+    <meta property="og:title" content="Verify Certificate | The Spectrum Institute (TSI), Swat">
     <meta property="og:description" content="Verify a Spectrum Institute student certificate online using Certificate ID and identity details.">
     <meta property="og:url" content="https://spectruminstitute.uk/verify.html">
     <meta property="og:image" content="https://spectruminstitute.uk/logo.png">
     <meta property="og:image:alt" content="The Spectrum Institute logo">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Verify Certificate | The Spectrum Institute TSI">
+    <meta name="twitter:title" content="Verify Certificate | The Spectrum Institute (TSI), Swat">
     <meta name="twitter:description" content="Verify a Spectrum Institute student certificate online using Certificate ID and identity details.">
     <meta name="twitter:image" content="https://spectruminstitute.uk/logo.png">
     <link rel="stylesheet" href="css/style.css">
@@ -64,12 +64,15 @@
                     <li class="nav-dropdown">
                         <button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true">Academics</button>
                         <ul class="nav-dropdown-menu" role="menu">
+                            <li role="none"><a role="menuitem" href="ai-academy-swat.html">AI &amp; IT Academy</a></li>
                             <li role="none"><a role="menuitem" href="courses.html">Courses</a></li>
                             <li role="none"><a role="menuitem" href="faculties.html">Faculties</a></li>
                             <li role="none"><a role="menuitem" href="faculty.html">Faculty Profiles</a></li>
                             <li role="none"><a role="menuitem" href="alumni.html">Alumni</a></li>
+                            <li role="none"><a role="menuitem" href="gallery.html">Gallery</a></li>
                         </ul>
                     </li>
+                    <li><a href="news.html">News</a></li>
                     <li><a href="admissions.html">Admissions</a></li>
                     <li><a href="verify.html" class="is-active">Verification</a></li>
                     <li><a href="contact.html">Contact</a></li>
@@ -94,7 +97,7 @@
                 </div>
                 <div class="guide-chat-window" id="verifyChatWindow" role="log" aria-live="polite"></div>
                 <form class="guide-chat-input-row" id="verifyChatForm">
-                    <input type="text" id="verifyChatInput" placeholder="Yahan likhen..." autocomplete="off">
+                    <input type="text" id="verifyChatInput" placeholder="Type your message here..." autocomplete="off">
                     <button type="submit" class="guide-chat-send-btn" aria-label="Send">➤</button>
                 </form>
             </div>
@@ -114,7 +117,8 @@
 <section class="verify-section-wrap" id="verify" aria-labelledby="verify-heading">
     <div class="verify-section">
         <div class="verify-card">
-            <p class="verify-subtitle">Neeche diya gaya form bharen ya QR code scan karen. Chahen to niche baayen corner wale <strong>Verify Assistant</strong> icon per click kar ke step-by-step chat se bhi verify kar sakte hain.</p>
+            <div class="verify-form-area" id="verifyFormArea">
+            <p class="verify-subtitle">Fill in the form below or scan the QR code on your certificate. You can also click the <strong>Verify Assistant</strong> icon in the bottom-left corner to verify step by step in a chat.</p>
 
             <form class="verify-secure-form" id="verifySecureForm" onsubmit="handleVerifyButtonClick(event)">
                 <div class="verify-fields-grid">
@@ -141,6 +145,7 @@
                 </div>
                 <p class="verify-rate-hint" id="verifyRateHint">Up to 5 verification attempts per browser session.</p>
             </form>
+            </div>
 
             <div class="verify-result-card" id="verifyResultCard"></div>
         </div>
@@ -176,8 +181,8 @@
             <p class="footer-campus-line"><span class="footer-campus-label">Barikot Main Campus:</span> <span class="footer-campus-address">1st Floor, Usman Plaza, Main Pull, Barikot, Swat.</span></p>
             <p class="footer-campus-line"><span class="footer-campus-label">Mingora City Campus:</span> <span class="footer-campus-address">Opposite to Mela Ground, Mingora, Swat (Branch Manager: Amir Hamza)</span></p>
         </div>
-        <p>&copy; 2022 <span>The Spectrum Institute (TSI)</span> - Barikot &amp; Mingora, Swat. All technical rights reserved.</p>
-        <p class="footer-seo-copy">The Spectrum Institute is the <strong>Best Technical and Professional Education Institute in Barikot &amp; Mingora, Swat</strong>, offering <strong>Safety Engineering diplomas in Swat, Pakistan</strong> and serving as a <strong>Top IT and Software Development training center in Swat</strong>.</p>
+        <p>&copy; 2022 <span>The Spectrum Institute (TSI)</span> - Swat, Khyber Pakhtunkhwa. All technical rights reserved.</p>
+        <p class="footer-seo-copy">The Spectrum Institute is the <strong>AI Engineering &amp; IT Academy of Swat</strong>: courses in <strong>Artificial Intelligence, Python, Data Science, Cyber Security and Web Development in Swat</strong>, plus CCNA, DIT and internationally recognised Safety Engineering.</p>
     </footer>
 
     <script src="js/vendor/supabase.min.js" defer></script>

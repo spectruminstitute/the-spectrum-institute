@@ -1,0 +1,4 @@
+# News posts: clean links like /news/ali-khan-builds-school-app
+# are served by news-post.html, which loads the story from Supabase.
+/news/:slug    /news-post.html    200
+/news          /news.html         200

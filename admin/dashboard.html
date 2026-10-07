@@ -35,12 +35,15 @@
                     <li><span class="admin-nav-label">Admin Console</span></li>
                     <li><span class="admin-nav-email" id="adminNavEmail"></span></li>
                     <li class="admin-nav-tabs" aria-hidden="true">
+                        <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('admissions')">Admissions <span class="admission-count-badge" data-admission-badge hidden>0</span></button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('students')">Students</button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('courses')">Courses</button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('certificates')">Certificates</button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('leads')">Leads</button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('reviews')">Reviews</button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('alumni')">Alumni</button>
+                        <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('gallery')">Gallery</button>
+                        <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('news')">News</button>
                     </li>
                     <li><button type="button" class="cta-btn nav-logout-btn" onclick="handleAdminLogout()">Logout</button></li>
                 </ul>
@@ -58,6 +61,12 @@
                 </div>
                 <button type="button" class="cta-btn secondary admin-refresh-btn" onclick="refreshAdminDashboard()">↻ Refresh Data</button>
             </header>
+
+            <button type="button" class="admission-alert-bar" id="admissionAlertBar" hidden onclick="switchAdminTab('admissions')">
+                <span class="admission-alert-dot" aria-hidden="true"></span>
+                <span id="admissionAlertText">New online admission</span>
+                <span class="admission-alert-cta">View now →</span>
+            </button>
 
             <div class="admin-stats-grid" id="adminStatsGrid">
                 <article class="admin-stat-card">
@@ -91,12 +100,15 @@
 
             <div class="admin-shell">
                 <aside class="admin-side-nav" aria-label="Dashboard sections">
+                    <button type="button" class="admin-tab-btn" data-admin-tab="admissions" onclick="switchAdminTab('admissions')">Online Admissions <span class="admission-count-badge" data-admission-badge hidden>0</span></button>
                     <button type="button" class="admin-tab-btn active" data-admin-tab="students" onclick="switchAdminTab('students')">Student Management</button>
                     <button type="button" class="admin-tab-btn" data-admin-tab="courses" onclick="switchAdminTab('courses')">Course &amp; Batch Management</button>
                     <button type="button" class="admin-tab-btn" data-admin-tab="certificates" onclick="switchAdminTab('certificates')">Certificate Management</button>
                     <button type="button" class="admin-tab-btn" data-admin-tab="leads" onclick="switchAdminTab('leads')">Inquiry Leads</button>
                     <button type="button" class="admin-tab-btn" data-admin-tab="reviews" onclick="switchAdminTab('reviews')">Reviews Management</button>
                     <button type="button" class="admin-tab-btn" data-admin-tab="alumni" onclick="switchAdminTab('alumni')">Alumni Directory</button>
+                    <button type="button" class="admin-tab-btn" data-admin-tab="gallery" onclick="switchAdminTab('gallery')">Student Gallery</button>
+                    <button type="button" class="admin-tab-btn" data-admin-tab="news" onclick="switchAdminTab('news')">News &amp; Achievements</button>
                 </aside>
 
                 <div class="admin-panels" id="admin-content-area">
@@ -437,10 +449,38 @@
                         </div>
                     </div>
 
+                    <div class="admin-panel" id="adminPanelAdmissions" data-panel="admissions" hidden>
+                        <div class="admin-panel-head">
+                            <div>
+                                <h2>Online Admissions</h2>
+                                <p>Every admission form submitted on the website appears here instantly. New applications are marked <strong>NEW</strong> until you change their status.</p>
+                            </div>
+                            <button type="button" class="cta-btn secondary" onclick="refreshAdminLeads()">↻ Refresh</button>
+                        </div>
+                        <div class="admission-alerts-setting" id="admissionAlertsSetting">
+                            <span id="admissionAlertsState">🔔 Get a pop-up and sound on this computer or phone when a new admission arrives.</span>
+                            <button type="button" class="admin-action-btn" id="admissionAlertsBtn" onclick="enableAdmissionAlerts()">Turn on alerts</button>
+                        </div>
+                        <div class="admission-summary" id="admissionSummary"></div>
+                        <div class="leads-toolbar admission-toolbar">
+                            <input type="search" id="admissionSearch" placeholder="Search name, phone or course…" oninput="renderAdminAdmissions()">
+                            <select id="admissionStatusFilter" onchange="renderAdminAdmissions()">
+                                <option value="">All statuses</option>
+                                <option value="new">New</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="enrolled">Enrolled</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                        </div>
+                        <div class="admission-list" id="admissionList">
+                            <p class="admin-table-empty">Loading admissions…</p>
+                        </div>
+                    </div>
+
                     <div class="admin-panel" id="adminPanelLeads" data-panel="leads" hidden>
                       <div class="admin-panel-head">
                         <h2>Inquiry Leads</h2>
-                        <p>Admission applications from the public portal — follow up on WhatsApp or promote a lead to an official student.</p>
+                        <p>All messages from the public website, including admissions and contact inquiries. Online admissions also have their own tab.</p>
                       </div>
                       <div class="leads-toolbar">
                         <select id="leadsStatusFilter" onchange="renderAdminLeadsTable()">
@@ -517,6 +557,63 @@
                                 </thead>
                                 <tbody id="adminAlumniBody">
                                     <tr><td colspan="6" class="admin-table-empty">Loading alumni…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="admin-panel" id="adminPanelGallery" data-panel="gallery" hidden>
+                        <div class="admin-panel-head">
+                            <div>
+                                <h2>Student Gallery</h2>
+                                <p>Add students with their photos, achievements and details. Published entries appear on the public Gallery page.</p>
+                            </div>
+                            <button type="button" class="cta-btn" onclick="openGalleryFormModal()">➕ Add Student to Gallery</button>
+                        </div>
+                        <div class="admin-table-wrap">
+                            <table class="admin-table" id="adminGalleryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Student</th>
+                                        <th>Course (Batch)</th>
+                                        <th>Achievement</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminGalleryBody">
+                                    <tr><td colspan="6" class="admin-table-empty">Loading gallery…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="admin-panel" id="adminPanelNews" data-panel="news" hidden>
+                        <div class="admin-panel-head">
+                            <div>
+                                <h2>News &amp; Achievements</h2>
+                                <p>Post news about your students and the institute. Published posts appear on the News page, the home page and in Google search. Write a clear title and summary with the student's full name, course and city so people find it when they search.</p>
+                            </div>
+                            <div class="admin-news-head-actions">
+                                <button type="button" class="cta-btn secondary" onclick="downloadNewsSitemap()">⬇️ Download sitemap.xml</button>
+                                <button type="button" class="cta-btn" onclick="openNewsFormModal()">➕ New Post</button>
+                            </div>
+                        </div>
+                        <div class="admin-table-wrap">
+                            <table class="admin-table" id="adminNewsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminNewsBody">
+                                    <tr><td colspan="6" class="admin-table-empty">Loading news…</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -648,7 +745,201 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="galleryFormModal" onclick="closeGalleryFormOnOverlay(event)">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="galleryFormTitle">
+            <button type="button" class="modal-close-btn" onclick="closeGalleryFormModal()">&times;</button>
+            <div class="modal-header">
+                <h3 id="galleryFormTitle">Add Student to Gallery</h3>
+            </div>
+            <div class="modal-body">
+                <form id="adminGalleryForm" class="admin-form-grid" onsubmit="handleAdminSaveGallery(event)">
+                    <input type="hidden" id="editingGalleryId" value="">
+                    <div class="form-group">
+                        <label for="admGalName">Student Name</label>
+                        <input type="text" id="admGalName" required maxlength="120" placeholder="Full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="admGalFather">Father's Name (optional)</label>
+                        <input type="text" id="admGalFather" maxlength="120" placeholder="Father's name">
+                    </div>
+                    <div class="form-group">
+                        <label for="admGalCourse">Course</label>
+                        <input type="text" id="admGalCourse" required maxlength="150" placeholder="e.g. NEBOSH IGC">
+                    </div>
+                    <div class="form-group">
+                        <label for="admGalBatch">Batch Year</label>
+                        <input type="text" id="admGalBatch" required maxlength="40" placeholder="e.g. 2026">
+                    </div>
+                    <div class="form-group">
+                        <label for="admGalCity">City (optional)</label>
+                        <input type="text" id="admGalCity" maxlength="80" placeholder="e.g. Barikot, Swat">
+                    </div>
+                    <div class="form-group">
+                        <label for="admGalResult">Result / Grade (optional)</label>
+                        <input type="text" id="admGalResult" maxlength="60" placeholder="e.g. Distinction, 92%">
+                    </div>
+                    <div class="form-group">
+                        <label for="admGalCategory">Category</label>
+                        <select id="admGalCategory">
+                            <option value="Achievement">Achievement</option>
+                            <option value="Certificate">Certificate</option>
+                            <option value="Award">Award</option>
+                            <option value="Job Placement">Job Placement</option>
+                            <option value="Event">Event</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="admGalTitle">Achievement Title</label>
+                        <input type="text" id="admGalTitle" required maxlength="160" placeholder="e.g. Passed NEBOSH IGC with Distinction">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admGalDetails">Achievement Details (optional)</label>
+                        <textarea id="admGalDetails" maxlength="1500" rows="4" placeholder="Short story or description shown on the student's detail page"></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admGalImageFile">Main Photo (upload from device)</label>
+                        <input type="file" id="admGalImageFile" accept="image/jpeg,image/png,image/webp,image/gif" onchange="handleGalleryMainImageSelect(event)">
+                        <div id="admGalUploadStatus" style="font-size: 0.85rem; margin-top: 6px; color: var(--text-muted);"></div>
+                        <img id="admGalImagePreview" src="" alt="" style="display:none; max-width: 140px; max-height: 140px; margin-top: 10px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color);">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admGalImage">Or paste main photo link (optional, must start with https://)</label>
+                        <input type="url" id="admGalImage" maxlength="500" placeholder="https://...">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admGalExtraFiles">More Photos: certificate, award, event (up to 6)</label>
+                        <input type="file" id="admGalExtraFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple onchange="handleGalleryExtraImagesSelect(event)">
+                        <div id="admGalExtraStatus" style="font-size: 0.85rem; margin-top: 6px; color: var(--text-muted);"></div>
+                        <div class="admin-gallery-extra-list" id="admGalExtraList"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="admin-gallery-check"><input type="checkbox" id="admGalFeatured"> Feature this student (shown first)</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="admin-gallery-check"><input type="checkbox" id="admGalPublished" checked> Show on the website</label>
+                    </div>
+                    <div class="form-navigation-buttons" style="grid-column: 1 / -1;">
+                        <button type="button" class="wizard-btn prev-btn" onclick="closeGalleryFormModal()">Cancel</button>
+                        <button type="submit" class="wizard-btn next-btn" id="admGalSubmitBtn">Save to Gallery</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     
+
+    <div class="modal-overlay" id="newsFormModal" onclick="closeNewsFormOnOverlay(event)">
+        <div class="modal-card admin-news-modal" role="dialog" aria-modal="true" aria-labelledby="newsFormTitle">
+            <button type="button" class="modal-close-btn" onclick="closeNewsFormModal()">&times;</button>
+            <div class="modal-header">
+                <h3 id="newsFormTitle">New Post</h3>
+            </div>
+            <div class="modal-body">
+                <form id="adminNewsForm" class="admin-form-grid" onsubmit="handleAdminSaveNews(event)">
+                    <input type="hidden" id="editingNewsId" value="">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsTitle">Headline</label>
+                        <input type="text" id="admNewsTitle" required maxlength="160" placeholder="e.g. Ali Khan from Barikot builds a school management app" oninput="syncNewsSlugFromTitle()">
+                        <small class="admin-news-hint" id="admNewsTitleCount">Tip: put the student's full name and what they did in the headline. 50 to 70 characters is ideal for Google.</small>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsSlug">Page link</label>
+                        <div class="admin-news-slug-row">
+                            <span>spectruminstitute.uk/news/</span>
+                            <input type="text" id="admNewsSlug" required maxlength="120" placeholder="ali-khan-builds-school-app" oninput="this.dataset.touched='1'; this.value=newsSlugify(this.value, true)">
+                        </div>
+                        <small class="admin-news-hint">Made from the headline automatically. Avoid changing it after publishing, or old links will stop working.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="admNewsCategory">Category</label>
+                        <select id="admNewsCategory">
+                            <option value="Student Achievement">Student Achievement</option>
+                            <option value="Result">Result</option>
+                            <option value="Job Placement">Job Placement</option>
+                            <option value="Event">Event</option>
+                            <option value="Institute News">Institute News</option>
+                            <option value="Announcement">Announcement</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="admNewsDate">Date</label>
+                        <input type="date" id="admNewsDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admNewsStudent">Student name (optional)</label>
+                        <input type="text" id="admNewsStudent" maxlength="120" placeholder="Full name, as people would search it">
+                    </div>
+                    <div class="form-group">
+                        <label for="admNewsCourse">Course (optional)</label>
+                        <input type="text" id="admNewsCourse" maxlength="150" placeholder="e.g. Web &amp; Software Development">
+                    </div>
+                    <div class="form-group">
+                        <label for="admNewsCity">City (optional)</label>
+                        <input type="text" id="admNewsCity" maxlength="80" placeholder="e.g. Mingora, Swat">
+                    </div>
+                    <div class="form-group">
+                        <label for="admNewsAuthor">Written by</label>
+                        <input type="text" id="admNewsAuthor" maxlength="120" placeholder="The Spectrum Institute">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsSummary">Short summary</label>
+                        <textarea id="admNewsSummary" required maxlength="300" rows="2" placeholder="One or two sentences. Google shows this under the headline in search results." oninput="updateNewsCounters()"></textarea>
+                        <small class="admin-news-hint" id="admNewsSummaryCount"></small>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsBody">Full story</label>
+                        <textarea id="admNewsBody" required maxlength="20000" rows="10" placeholder="Write the full story. Leave an empty line between paragraphs.&#10;&#10;## A line starting with ## becomes a sub-heading&#10;- A line starting with - becomes a bullet point" oninput="updateNewsCounters()"></textarea>
+                        <small class="admin-news-hint" id="admNewsBodyCount">Longer, detailed stories (300+ words) rank better: who, what, when, where, how, and a quote from the student or teacher.</small>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsKeywords">Search keywords (optional, comma separated)</label>
+                        <input type="text" id="admNewsKeywords" maxlength="300" placeholder="e.g. Ali Khan, Swat developer, web development course Swat">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsLink">Related link (optional, must start with https://)</label>
+                        <input type="url" id="admNewsLink" maxlength="500" placeholder="e.g. the student's project, LinkedIn or a newspaper article">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsImageFile">Main photo (upload from device)</label>
+                        <input type="file" id="admNewsImageFile" accept="image/jpeg,image/png,image/webp" onchange="handleNewsMainImageSelect(event)">
+                        <div id="admNewsUploadStatus" class="admin-news-hint"></div>
+                        <img id="admNewsImagePreview" src="" alt="" style="display:none; max-width: 220px; max-height: 140px; margin-top: 10px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color);">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsImage">Or paste main photo link (optional, must start with https://)</label>
+                        <input type="url" id="admNewsImage" maxlength="500" placeholder="https://...">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="admNewsExtraFiles">More photos (up to 8)</label>
+                        <input type="file" id="admNewsExtraFiles" accept="image/jpeg,image/png,image/webp" multiple onchange="handleNewsExtraImagesSelect(event)">
+                        <div id="admNewsExtraStatus" class="admin-news-hint"></div>
+                        <div class="admin-gallery-extra-list" id="admNewsExtraList"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="admin-gallery-check"><input type="checkbox" id="admNewsFeatured"> Feature this post (shown at the top)</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="admin-gallery-check"><input type="checkbox" id="admNewsPublished" checked> Publish on the website</label>
+                    </div>
+                    <div class="form-navigation-buttons" style="grid-column: 1 / -1;">
+                        <button type="button" class="wizard-btn prev-btn" onclick="closeNewsFormModal()">Cancel</button>
+                        <button type="submit" class="wizard-btn next-btn" id="admNewsSubmitBtn">Save Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="admissionDetailModal" onclick="if(event.target.id==='admissionDetailModal')closeAdmissionDetail()">
+        <div class="modal-card admission-detail-card" role="dialog" aria-modal="true" aria-labelledby="admissionDetailTitle">
+            <button type="button" class="modal-close-btn" onclick="closeAdmissionDetail()">&times;</button>
+            <div class="modal-header">
+                <h3 id="admissionDetailTitle">Admission details</h3>
+            </div>
+            <div class="modal-body" id="admissionDetailBody"></div>
+        </div>
+    </div>
 
     <script src="../js/vendor/supabase.min.js" defer></script>
     <script src="../js/vendor/papaparse.min.js" defer></script>

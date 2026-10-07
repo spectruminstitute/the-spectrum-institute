@@ -10,7 +10,7 @@ const root = path.resolve(__dirname, "..");
 function navMarkup(activeFile = "") {
   const isActive = (file) => (activeFile === file ? ' class="is-active"' : "");
   const aboutActive = ["overview.html", "vc-message.html", "vision-mission.html", "rules.html", "research.html", "about.html"].includes(activeFile);
-  const academicsActive = ["courses.html", "faculties.html", "faculty.html", "alumni.html"].includes(activeFile);
+  const academicsActive = ["courses.html", "faculties.html", "faculty.html", "alumni.html", "gallery.html"].includes(activeFile);
 
   return `    <div class="toast-container" id="toastContainer"></div>
 
@@ -43,6 +43,7 @@ function navMarkup(activeFile = "") {
                             <li role="none"><a role="menuitem" href="faculties.html"${isActive("faculties.html")}>Faculties</a></li>
                             <li role="none"><a role="menuitem" href="faculty.html"${isActive("faculty.html")}>Faculty Profiles</a></li>
                             <li role="none"><a role="menuitem" href="alumni.html"${isActive("alumni.html")}>Alumni</a></li>
+                            <li role="none"><a role="menuitem" href="gallery.html"${isActive("gallery.html")}>Gallery</a></li>
                         </ul>
                     </li>
                     <li><a href="admissions.html"${isActive("admissions.html")}>Admissions</a></li>
