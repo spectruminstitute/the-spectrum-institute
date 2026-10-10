@@ -521,7 +521,7 @@ ${verifySection}
 ${qrModal}
 ` +
     footer +
-    `    <script src="https://unpkg.com/html5-qrcode" defer></script>
+    `    <script src="js/vendor/html5-qrcode.min.js" defer></script>
     <script src="js/app.js" defer></script>
 </body>
 </html>
@@ -604,9 +604,9 @@ write(
   "admin/dashboard.html",
   adminHead(
     "Admin Dashboard | The Spectrum Institute",
-    `    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    `    <script src="../js/vendor/qrcode.min.js"></script>
+    <script src="../js/vendor/jspdf.umd.min.js"></script>
+    <script src="../js/vendor/chart.umd.min.js"></script>
 `
   ) +
     `<body class="auth-resolving admin-page">

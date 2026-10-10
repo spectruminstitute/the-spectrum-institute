@@ -4922,8 +4922,9 @@
         }
 
         const CERT_CDN = {
-            qrcode: "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js",
-            jspdf: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+            // Served from our own site: the Content-Security-Policy (_headers) only allows scripts from 'self'.
+            qrcode: "/js/vendor/qrcode.min.js",
+            jspdf: "/js/vendor/jspdf.umd.min.js"
         };
 
         let certLibraryLoadPromise = null;
