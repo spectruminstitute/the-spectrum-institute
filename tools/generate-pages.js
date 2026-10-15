@@ -62,6 +62,7 @@ function nav(active) {
     ["index.html", "Home"],
     ["about.html", "About"],
     ["courses.html", "Courses"],
+    ["prospectus.html", "Prospectus"],
     ["faculty.html", "Faculty"],
     ["verify.html", "Verify"],
     ["contact.html", "Contact"],

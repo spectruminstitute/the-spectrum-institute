@@ -7,6 +7,7 @@
 - [Shah Mujeeb Ur Rahman](https://spectruminstitute.uk/shah-mujeeb-ur-rahman.html): profile of TSI's Lead IT & AI Specialist, an AI expert and AI security researcher from Barikot, Swat who has trained 350+ students in AI, around 200 female and 150+ male (also written Shah Mujeebur Rahman)
 - [Home](https://spectruminstitute.uk/): overview of the institute
 - [Courses](https://spectruminstitute.uk/courses.html): full course catalog with fees and syllabus
+- [Prospectus & Fee Structure](https://spectruminstitute.uk/prospectus.html): official prospectus with every course, duration and fee in PKR, faculty, rules and campuses
 - [News & Student Achievements](https://spectruminstitute.uk/news.html): what TSI students are building and achieving. Each story has its own page under https://spectruminstitute.uk/news/
 - [Faculty](https://spectruminstitute.uk/faculty.html): teacher profiles
 - [Alumni](https://spectruminstitute.uk/alumni.html): former students and where they work now
