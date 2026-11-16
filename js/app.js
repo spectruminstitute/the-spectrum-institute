@@ -1614,7 +1614,6 @@
                         ? "Invalid or Expired Certificate QR Code"
                         : "Verification Failed / Details Mismatched — one or more fields did not match a valid certificate record.";
                     resultCard.innerHTML = renderVerifyErrorMarkup(failMsg);
-                    if (serialOnly) appendVerifyPortalButton(false);
                     if (serialOnly && !options.silentToast) {
                         showToast("⚠️ Invalid or Expired Certificate QR Code", "warning");
                     }
@@ -1641,7 +1640,6 @@
                 }
 
                 renderVerifySuccessMarkup(safeCert);
-                if (serialOnly) appendVerifyPortalButton(true);
                 scrollToVerifyResult();
                 if (!options.silentToast) {
                     showToast("✅ Certificate verified successfully.", "success");
@@ -1654,7 +1652,6 @@
                         ? "Invalid or Expired Certificate QR Code"
                         : "Unexpected error occurred. Please check your internet connection and try again."
                 );
-                if (serialOnly) appendVerifyPortalButton(false);
                 if (serialOnly) {
                     showToast("⚠️ Invalid or Expired Certificate QR Code", "warning");
                 }
@@ -1670,7 +1667,7 @@
                 : `<span class="verify-badge verified">Verified ✅</span>`;
 
             const issueDate = cert.issue_date
-                ? new Date(`${String(cert.issue_date).slice(0, 10)}T00:00:00`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                ? new Date(cert.issue_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
                 : "N/A";
             const expiryDate = cert.expiry_date ? formatDisplayDate(cert.expiry_date) : "No expiry";
 
@@ -1796,7 +1793,6 @@
                     verifyCertificate(certId, studentName, fatherName, studentDob);
                 } else {
                     // Deep-link QR encodes serial only — verify immediately via RPC.
-                    setVerifyQrMode(true);
                     verifyCertificate(certId, "", "", "", { serialOnly: true });
                 }
             } else {
@@ -1835,50 +1831,6 @@
             } else {
                 scrollToVerifySection();
             }
-        }
-
-        // ---------------- QR result view → "Open Verification Portal" ----------------
-        /** QR mode shows only the result; the manual verification form stays hidden until requested. */
-        function setVerifyQrMode(on) {
-            const card = document.querySelector(".verify-card");
-            const area = document.getElementById("verifyFormArea");
-            if (card) card.classList.toggle("is-qr-result", !!on);
-            if (area) area.hidden = !!on;
-        }
-
-        function appendVerifyPortalButton(verified) {
-            const resultCard = document.getElementById("verifyResultCard");
-            if (!resultCard || resultCard.querySelector(".verify-portal-actions")) return;
-            const wrap = document.createElement("div");
-            wrap.className = "verify-portal-actions";
-            wrap.innerHTML = `
-                <p>${verified
-                    ? "This certificate was verified from its QR code. Open the verification portal to check it again with full identity details, or to verify another certificate."
-                    : "The QR code could not be verified. Open the verification portal to check the certificate manually with the student's details."}</p>
-                <button type="button" class="cta-btn verify-portal-btn" onclick="openVerifyPortal()">🔍 Open Verification Portal</button>`;
-            resultCard.appendChild(wrap);
-        }
-
-        function openVerifyPortal() {
-            const resultCard = document.getElementById("verifyResultCard");
-            const certInput = document.getElementById("certIdInput");
-            const keepId = certInput ? certInput.value : "";
-            ["verifyStudentName", "verifyFatherName", "verifyStudentDob"].forEach((id) => {
-                const el = document.getElementById(id);
-                if (el) el.value = "";
-            });
-            if (resultCard) {
-                resultCard.classList.remove("show", "loading");
-                resultCard.innerHTML = "";
-            }
-            setVerifyQrMode(false);
-            if (window.location.search) {
-                history.replaceState(null, "", window.location.pathname + "#verify");
-            }
-            updateVerifyRateHint();
-            scrollToVerifySection();
-            const focusTarget = keepId ? document.getElementById("verifyStudentName") : certInput;
-            setTimeout(() => focusTarget?.focus({ preventScroll: true }), 350);
         }
 
         function checkUrlForVerifyParam() {
@@ -1920,7 +1872,6 @@
             if (studentName && fatherName && studentDob) {
                 verifyCertificate(certId, studentName, fatherName, studentDob, { silentToast: true });
             } else {
-                setVerifyQrMode(true);
                 verifyCertificate(certId, "", "", "", { serialOnly: true, silentToast: false });
             }
         }
@@ -2467,7 +2418,6 @@
             switchAdminTab('students');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             await refreshAdminDashboard();
-            initAdmissionAlerts();
         }
 
         function exitAdminDashboard() {
@@ -2509,8 +2459,7 @@
                     (tabName === 'reviews' && label.startsWith('review')) ||
                     (tabName === 'alumni' && label.startsWith('alumni')) ||
                     (tabName === 'gallery' && label.startsWith('gallery')) ||
-                    (tabName === 'news' && label.startsWith('news')) ||
-                    (tabName === 'admissions' && label.startsWith('admission'));
+                    (tabName === 'news' && label.startsWith('news'));
                 chip.classList.toggle('active', match);
             });
 
@@ -2531,7 +2480,6 @@
             if (tabName === 'alumni') renderAdminAlumniTable();
             if (tabName === 'gallery') renderAdminGalleryTable();
             if (tabName === 'news') renderAdminNewsTable();
-            if (tabName === 'admissions') renderAdminAdmissions();
 
             // Smooth-scroll the main dashboard panels into view after switching tabs
             requestAnimationFrame(() => {
@@ -2682,8 +2630,6 @@
                 renderAdminBatchesTable();
                 renderAdminCertificatesTable();
                 renderAdminLeadsTable();
-                renderAdminAdmissions();
-                detectNewAdmissions();
                 renderAdminReviewsTable();
                 renderAdminAlumniTable();
                 renderAdminGalleryTable();
@@ -3657,6 +3603,7 @@
                 .filter((c) => c.student_id === student.id && (c.status || '').toLowerCase() === 'active')
                 .sort((a, b) => String(b.issue_date || '').localeCompare(String(a.issue_date || '')))[0];
             if (latest) selectedCertRenderId = latest.id;
+            if (isCertIdAutoMode()) setCertIdMode(true); // number follows the student course
         }
 
         function renderAdminCertificatesTable() {
@@ -3696,18 +3643,50 @@
             }).join('');
         }
 
-        function previewNextCertificateId() {
-            const year = new Date().getFullYear();
-            const prefix = `TSI-${year}-`;
+        /* Certificate numbers: TSI-<COURSE CODE>-001 with a separate counter per course
+           (same rules as the Netaford Certificates software). Old TSI-2026-NNN numbers still verify. */
+        const CERT_CODE_STOP = new Set(["of", "in", "and", "the", "for", "to", "with", "on", "a", "an", "&", "-", "diploma", "certificate", "certification", "course", "program", "programme", "training", "level"]);
+        const CERT_KNOWN_CODES = [ // fixed code for every Spectrum course (same list as the software). First match wins.
+            [/\biosh\b/i, "IOSH"], [/\bosha\b/i, "OSHA"], [/\bnebosh\b/i, "NEBOSH"], [/fire\s+safety/i, "FS"], [/\brigger\b/i, "RIG"],
+            [/first\s+aid/i, "FA"], [/\bothm\b/i, "OTHM"], [/\bnvq\b/i, "NVQ"], [/\biso\b|lead\s+auditor/i, "ISO"], [/\bbls\b|basic\s+life\s+support/i, "BLS"],
+            [/scaffold/i, "SCF"], [/working\s+at\s+height/i, "WAH"], [/work\s+permit/i, "WPR"], [/confined\s+space/i, "CSP"], [/risk\s+assessment/i, "RA"], [/\bndt\b/i, "NDT"],
+            [/\bccna\b/i, "CCNA"], [/cyber\s*security/i, "CS"], [/artificial\s+intelligence|\bai\b/i, "AI"], [/\bict\b/i, "ICT"], [/basic\s+computer/i, "BCS"],
+            [/web\s*(&|and)?\s*software|web\s+(development|design)|software\s+development/i, "WSD"], [/graphic/i, "GD"], [/autocad|revit|sketch\s*up/i, "CAD"],
+            [/python/i, "PY"], [/c\s*\/\s*c\+\+|c\+\+/i, "CPP"], [/microsoft\s+office|ms\s*office/i, "MSO"], [/\bdit\b|\bcit\b/i, "DIT"], [/data\s+science/i, "DS"],
+            [/e-?\s*commerce|shopify|amazon/i, "ECOM"], [/digital\s+marketing/i, "DM"], [/database/i, "DBE"], [/machine\s+learning/i, "ML"],
+            [/physics/i, "PHY"], [/chemistry/i, "CHEM"], [/biology/i, "BIO"], [/mathematics|\bmaths?\b/i, "MATH"], [/computer\s+science/i, "CSC"],
+            [/tuition/i, "TUI"], [/english/i, "ENG"], [/japanese/i, "JPN"], [/korean/i, "KOR"], [/chinese/i, "CHN"]
+        ];
+        function cleanCertCode(v) {
+            return String(v || "").toUpperCase().replace(/[^A-Z0-9.]/g, "").replace(/^\.+|\.+$/g, "").slice(0, 10);
+        }
+        function courseCodeForCertificate(name) {
+            const n = String(name || "").trim();
+            if (!n) return "GEN";
+            for (const [re, code] of CERT_KNOWN_CODES) if (re.test(n)) return code;
+            const words = n.replace(/[()\[\],/]/g, " ").split(/\s+/).filter((w) => w && !CERT_CODE_STOP.has(w.toLowerCase()));
+            const code = cleanCertCode(words.map((w) => (/^[A-Z0-9]{2,}$/.test(w) ? w : w[0])).join(""));
+            return code.length >= 2 ? code.slice(0, 6) : (cleanCertCode(n.replace(/\s+/g, "")).slice(0, 4) || "GEN");
+        }
+        function selectedCertCourseName() {
+            const studentId = document.getElementById('admCertStudent')?.value;
+            const student = adminCache.students.find((s) => s.id === studentId);
+            if (!student) return null;
+            return student?.courses?.name
+                || (typeof resolveStudentCourseLabel === "function" ? resolveStudentCourseLabel(student.course_id) : "")
+                || "";
+        }
+        function previewNextCertificateId(courseName) {
+            const course = courseName === undefined ? selectedCertCourseName() : courseName;
+            if (course === null) return "";            // no student chosen yet
+            const prefix = `TSI-${courseCodeForCertificate(course)}-`;
             const seqs = adminCache.certificates
                 .map((c) => String(c.certificate_id || '').toUpperCase())
                 .filter((id) => id.startsWith(prefix))
                 .map((id) => parseInt(id.slice(prefix.length), 10))
                 .filter((n) => Number.isFinite(n));
             const next = (seqs.length ? Math.max(...seqs) : 0) + 1;
-            const fallback = adminCache.certificates.length + 1;
-            const use = seqs.length ? next : fallback;
-            return `${prefix}${String(use).padStart(3, '0')}`;
+            return `${prefix}${String(next).padStart(3, '0')}`;
         }
 
         let certIdAutoMode = true;
@@ -3749,7 +3728,7 @@
 
             if (modeHint) {
                 modeHint.textContent = certIdAutoMode
-                    ? "Auto Mode assigns the next sequential ID (TSI-YYYY-NNN). Switch to Manual to type a custom ID."
+                    ? "Auto Mode gives the next number for the student course (e.g. TSI-AI-001, TSI-CS-001). Switch to Manual to type a custom ID."
                     : "Manual Mode — type a custom Certificate ID. It must be unique.";
             }
 
@@ -4158,8 +4137,6 @@
             }
             adminCache.leads = data || [];
             renderAdminLeadsTable();
-            renderAdminAdmissions();
-            detectNewAdmissions();
             console.log('[Leads] Admin panel loaded', adminCache.leads.length, 'inquiries from public.leads');
         }
 
@@ -4699,21 +4676,21 @@
         }
 
         const CERT_TEXT_LAYOUT = [
-            { field: "instituteName", x: 130, y: 112, maxWidth: 400, font: CERT_FONT_SANS, weight: "700", italic: false, size: 13, minSize: 10, color: CERT_COLORS.goldDark, align: "left", placeholder: CERT_DEFAULT_COPY.instituteName },
-            { field: "instituteSubtitle", x: 130, y: 130, maxWidth: 440, font: CERT_FONT_SANS, weight: "500", italic: false, size: 11, minSize: 9, color: CERT_COLORS.muted, align: "left", placeholder: CERT_DEFAULT_COPY.instituteSubtitle },
+            { field: "instituteName", x: 600, y: 104, maxWidth: 560, font: CERT_FONT_SANS, weight: "700", italic: false, size: 15, minSize: 11, color: CERT_COLORS.goldDark, align: "center", tracked: true, placeholder: CERT_DEFAULT_COPY.instituteName },
+            { field: "instituteSubtitle", x: 600, y: 127, maxWidth: 520, font: CERT_FONT_SANS, weight: "500", italic: false, size: 11.5, minSize: 9, color: CERT_COLORS.muted, align: "center", placeholder: CERT_DEFAULT_COPY.instituteSubtitle },
             { field: "certNoLabel", x: 1070, y: 106, maxWidth: 220, font: CERT_FONT_SANS, weight: "700", italic: false, size: 10, minSize: 8, color: CERT_COLORS.muted, align: "right", placeholder: CERT_DEFAULT_COPY.certNoLabel },
-            { field: "serialNo", x: 1070, y: 126, maxWidth: 220, font: CERT_FONT_SANS, weight: "700", italic: false, size: 15, minSize: 11, color: CERT_COLORS.charcoal, align: "right", placeholder: "TSI-YYYY-NNN" },
-            { field: "titleMain", x: 600, y: 172, maxWidth: 840, font: CERT_FONT_SERIF, weight: "700", italic: false, size: 48, minSize: 30, color: CERT_COLORS.charcoal, align: "center", placeholder: CERT_DEFAULT_COPY.titleMain },
-            { field: "titleSub", x: 600, y: 210, maxWidth: 720, font: CERT_FONT_SANS, weight: "600", italic: false, size: 22, minSize: 14, color: CERT_COLORS.gold, align: "center", tracked: true, placeholder: CERT_DEFAULT_COPY.titleSubCompletion },
-            { field: "preamble", x: 600, y: 274, maxWidth: 760, font: CERT_FONT_SERIF, weight: "500", italic: true, size: 17, minSize: 13, color: CERT_COLORS.muted, align: "center", placeholder: CERT_DEFAULT_COPY.preamble },
-            { field: "studentName", x: 600, y: 326, maxWidth: 960, font: CERT_FONT_SERIF, weight: "700", italic: false, size: 42, minSize: 22, color: CERT_COLORS.charcoal, align: "center", placeholder: "Student Full Name", maxLines: 2 },
-            { field: "fatherLine", x: 600, y: 380, maxWidth: 720, font: CERT_FONT_SANS, weight: "500", italic: false, size: 15, minSize: 11, color: CERT_COLORS.muted, align: "center", placeholder: "S/O Father's Name" },
-            { field: "bodyLine", x: 600, y: 414, maxWidth: 780, font: CERT_FONT_SERIF, weight: "500", italic: true, size: 16, minSize: 12, color: CERT_COLORS.muted, align: "center", placeholder: CERT_DEFAULT_COPY.bodyCompletion },
-            { field: "courseName", x: 600, y: 448, maxWidth: 960, font: CERT_FONT_SANS, weight: "700", italic: false, size: 24, minSize: 14, color: CERT_COLORS.goldDark, align: "center", placeholder: "Course / Program Name", maxLines: 2, quote: true },
-            { field: "issueDateLabel", x: 110, y: 542, maxWidth: 220, font: CERT_FONT_SANS, weight: "700", italic: false, size: 10, minSize: 8, color: CERT_COLORS.muted, align: "left", placeholder: CERT_DEFAULT_COPY.issueDateLabel },
-            { field: "issueDateText", x: 110, y: 564, maxWidth: 240, font: CERT_FONT_SANS, weight: "700", italic: false, size: 16, minSize: 12, color: CERT_COLORS.charcoal, align: "left", placeholder: "DD Mon YYYY" },
-            { field: "creditsLabel", x: 110, y: 596, maxWidth: 220, font: CERT_FONT_SANS, weight: "700", italic: false, size: 10, minSize: 8, color: CERT_COLORS.muted, align: "left", placeholder: CERT_DEFAULT_COPY.creditsLabel },
-            { field: "credits", x: 110, y: 618, maxWidth: 240, font: CERT_FONT_SANS, weight: "700", italic: false, size: 16, minSize: 12, color: CERT_COLORS.gold, align: "left", placeholder: "Grade / CPD Credits" },
+            { field: "serialNo", x: 1070, y: 126, maxWidth: 220, font: CERT_FONT_SANS, weight: "700", italic: false, size: 15, minSize: 11, color: CERT_COLORS.charcoal, align: "right", placeholder: "TSI-CODE-NNN" },
+            { field: "titleMain", x: 600, y: 182, maxWidth: 840, font: CERT_FONT_SERIF, weight: "700", italic: false, size: 50, minSize: 30, color: CERT_COLORS.charcoal, align: "center", placeholder: CERT_DEFAULT_COPY.titleMain },
+            { field: "titleSub", x: 600, y: 222, maxWidth: 720, font: CERT_FONT_SANS, weight: "600", italic: false, size: 22, minSize: 14, color: CERT_COLORS.gold, align: "center", tracked: true, placeholder: CERT_DEFAULT_COPY.titleSubCompletion },
+            { field: "preamble", x: 600, y: 286, maxWidth: 760, font: CERT_FONT_SERIF, weight: "500", italic: true, size: 17, minSize: 13, color: CERT_COLORS.muted, align: "center", placeholder: CERT_DEFAULT_COPY.preamble },
+            { field: "studentName", x: 600, y: 336, maxWidth: 960, font: CERT_FONT_SERIF, weight: "700", italic: false, size: 42, minSize: 22, color: CERT_COLORS.charcoal, align: "center", placeholder: "Student Full Name", maxLines: 2 },
+            { field: "fatherLine", x: 600, y: 388, maxWidth: 720, font: CERT_FONT_SANS, weight: "500", italic: false, size: 15, minSize: 11, color: CERT_COLORS.muted, align: "center", placeholder: "S/O Father's Name" },
+            { field: "bodyLine", x: 600, y: 420, maxWidth: 780, font: CERT_FONT_SERIF, weight: "500", italic: true, size: 16, minSize: 12, color: CERT_COLORS.muted, align: "center", placeholder: CERT_DEFAULT_COPY.bodyCompletion },
+            { field: "courseName", x: 600, y: 454, maxWidth: 960, font: CERT_FONT_SANS, weight: "700", italic: false, size: 24, minSize: 14, color: CERT_COLORS.goldDark, align: "center", placeholder: "Course / Program Name", maxLines: 2, quote: true },
+            { field: "issueDateLabel", x: 500, y: 522, maxWidth: 180, font: CERT_FONT_SANS, weight: "700", italic: false, size: 10, minSize: 8, color: CERT_COLORS.muted, align: "center", placeholder: CERT_DEFAULT_COPY.issueDateLabel },
+            { field: "issueDateText", x: 500, y: 545, maxWidth: 180, font: CERT_FONT_SANS, weight: "700", italic: false, size: 17, minSize: 12, color: CERT_COLORS.charcoal, align: "center", placeholder: "DD Mon YYYY" },
+            { field: "creditsLabel", x: 700, y: 522, maxWidth: 180, font: CERT_FONT_SANS, weight: "700", italic: false, size: 10, minSize: 8, color: CERT_COLORS.muted, align: "center", placeholder: CERT_DEFAULT_COPY.creditsLabel },
+            { field: "credits", x: 700, y: 545, maxWidth: 180, font: CERT_FONT_SANS, weight: "700", italic: false, size: 17, minSize: 12, color: CERT_COLORS.gold, align: "center", placeholder: "Grade / CPD Credits" },
             { field: "sig1Name", x: 335, y: 724, maxWidth: 210, font: CERT_FONT_SANS, weight: "700", italic: false, size: 14, minSize: 10, color: CERT_COLORS.charcoal, align: "center", placeholder: CERT_DEFAULT_COPY.sig1Name },
             { field: "sig1Title", x: 335, y: 747, maxWidth: 210, font: CERT_FONT_SANS, weight: "500", italic: false, size: 11.5, minSize: 9, color: CERT_COLORS.muted, align: "center", placeholder: CERT_DEFAULT_COPY.sig1Title },
             { field: "sig2Name", x: 865, y: 724, maxWidth: 210, font: CERT_FONT_SANS, weight: "700", italic: false, size: 14, minSize: 10, color: CERT_COLORS.charcoal, align: "center", placeholder: CERT_DEFAULT_COPY.sig2Name },
@@ -4791,7 +4768,7 @@
             let next = {
                 ...createDefaultCertEditState(),
                 certType: isAppreciation ? "appreciation" : "completion",
-                serialNo: String(cert.certificate_id || "").trim().toUpperCase() || "TSI-YYYY-NNN",
+                serialNo: String(cert.certificate_id || "").trim().toUpperCase() || "TSI-CODE-NNN",
                 studentName: String(cert.student_name || "").trim() || "Student Full Name",
                 fatherLine: cert.father_name ? `${getRelationPrefix(cert.gender)} ${String(cert.father_name).trim()}` : "",
                 courseName: String(cert.course_name || "").trim() || "Course / Program Name",
@@ -4922,9 +4899,8 @@
         }
 
         const CERT_CDN = {
-            // Served from our own site: the Content-Security-Policy (_headers) only allows scripts from 'self'.
-            qrcode: "/js/vendor/qrcode.min.js",
-            jspdf: "/js/vendor/jspdf.umd.min.js"
+            qrcode: "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js",
+            jspdf: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
         };
 
         let certLibraryLoadPromise = null;
@@ -5311,6 +5287,17 @@
             ctx.fillStyle = glow;
             ctx.fillRect(0, 0, width, height);
 
+            {
+                const wmLogo = await ensureCertLogoLoaded();
+                if (wmLogo && wmLogo.naturalWidth) {
+                    try {
+                        const d = 380, r = Math.min(d / wmLogo.naturalWidth, d / wmLogo.naturalHeight);
+                        const w = wmLogo.naturalWidth * r, h = wmLogo.naturalHeight * r;
+                        ctx.save(); ctx.globalAlpha = 0.05; ctx.drawImage(wmLogo, width / 2 - w / 2, 395 - h / 2, w, h); ctx.restore();
+                    } catch (_) { /* watermark is optional */ }
+                }
+            }
+
             drawWavyBorderFrame(ctx, width, height, 26, 3.2, 46, CERT_COLORS.gold, 2);
 
             ctx.strokeStyle = CERT_COLORS.goldDark;
@@ -5326,7 +5313,7 @@
             drawCornerOrnament(ctx, 66, height - 66, ornSize, CERT_COLORS.goldDark, false, true);
             drawCornerOrnament(ctx, width - 66, height - 66, ornSize, CERT_COLORS.goldDark, true, true);
 
-            drawGoldDividerOrnament(ctx, width / 2, 236, 150, CERT_COLORS.gold);
+            drawGoldDividerOrnament(ctx, width / 2, 248, 150, CERT_COLORS.gold);
 
             ctx.strokeStyle = CERT_COLORS.hairline;
             ctx.lineWidth = 1.2;
@@ -5340,32 +5327,48 @@
 
             const logo = await ensureCertLogoLoaded();
             const logoCX = width / 2;
-            const logoCY = 696;
-            const logoR = 46;
+            const logoCY = 690;
+            const logoR = 50, rosetteOuter = 68, rosetteInner = 61;
+            const G = CERT_COLORS;
 
+            // thin line between issue date and grade
             ctx.save();
-            ctx.beginPath();
-            ctx.arc(logoCX, logoCY, logoR + 7, 0, Math.PI * 2);
-            ctx.strokeStyle = CERT_COLORS.gold;
-            ctx.lineWidth = 1.6;
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(logoCX, logoCY, logoR, 0, Math.PI * 2);
-            ctx.strokeStyle = CERT_COLORS.goldLight;
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            ctx.strokeStyle = G.hairline; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(width / 2, 512); ctx.lineTo(width / 2, 556); ctx.stroke();
+            ctx.restore();
 
+            // gold rosette seal with ribbon tails
+            ctx.save();
+            const drawTail = (dir) => {
+                ctx.save(); ctx.translate(logoCX, logoCY); ctx.rotate(dir * 0.32);
+                const w = 22, top = 24, bot = rosetteOuter + 26;
+                const rg = ctx.createLinearGradient(-w, 0, w, 0);
+                rg.addColorStop(0, G.goldDark); rg.addColorStop(0.5, G.gold); rg.addColorStop(1, G.goldDark);
+                ctx.fillStyle = rg; ctx.beginPath();
+                ctx.moveTo(-w / 2, top); ctx.lineTo(w / 2, top); ctx.lineTo(w / 2, bot); ctx.lineTo(0, bot - 10); ctx.lineTo(-w / 2, bot); ctx.closePath(); ctx.fill();
+                ctx.restore();
+            };
+            drawTail(-1); drawTail(1);
+            ctx.shadowColor = "rgba(0,0,0,0.18)"; ctx.shadowBlur = 8; ctx.shadowOffsetY = 2;
+            const points = 36;
             ctx.beginPath();
-            ctx.arc(logoCX, logoCY, logoR - 6, 0, Math.PI * 2);
+            for (let i = 0; i <= points * 2; i++) {
+                const a = (i / (points * 2)) * Math.PI * 2, rr = i % 2 ? rosetteInner : rosetteOuter;
+                ctx.lineTo(logoCX + Math.cos(a) * rr, logoCY + Math.sin(a) * rr);
+            }
             ctx.closePath();
-            ctx.save();
-            ctx.clip();
-            ctx.fillStyle = "#fffdf6";
-            ctx.fillRect(logoCX - logoR, logoCY - logoR, logoR * 2, logoR * 2);
+            const sg = ctx.createRadialGradient(logoCX - 18, logoCY - 22, 6, logoCX, logoCY, rosetteOuter);
+            sg.addColorStop(0, G.goldLight); sg.addColorStop(0.55, G.gold); sg.addColorStop(1, G.goldDark);
+            ctx.fillStyle = sg; ctx.fill();
+            ctx.shadowColor = "transparent";
+            ctx.beginPath(); ctx.arc(logoCX, logoCY, logoR + 5, 0, Math.PI * 2); ctx.fillStyle = G.goldDark; ctx.fill();
+            ctx.beginPath(); ctx.arc(logoCX, logoCY, logoR + 3.5, 0, Math.PI * 2); ctx.strokeStyle = G.goldLight; ctx.lineWidth = 1; ctx.stroke();
+            ctx.beginPath(); ctx.arc(logoCX, logoCY, logoR + 1, 0, Math.PI * 2); ctx.fillStyle = "#ffffff"; ctx.fill();
+
             let drewLogo = false;
             if (logo && logo.naturalWidth) {
                 try {
-                    const d = (logoR - 6) * 2;
+                    const d = logoR * 2 - 4;
                     const ratio = Math.min(d / logo.naturalWidth, d / logo.naturalHeight);
                     const w = logo.naturalWidth * ratio;
                     const h = logo.naturalHeight * ratio;
@@ -5377,23 +5380,20 @@
                 }
             }
             if (!drewLogo) {
-                ctx.fillStyle = CERT_COLORS.goldDark;
+                ctx.fillStyle = G.goldDark;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                ctx.font = `700 12px ${CERT_FONT_SANS}`;
-                ctx.fillText("TSI", logoCX, logoCY - 6);
-                ctx.font = `600 9px ${CERT_FONT_SANS}`;
-                ctx.fillText("SEAL", logoCX, logoCY + 9);
+                ctx.font = `700 18px ${CERT_FONT_SERIF}`;
+                ctx.fillText("TSI", logoCX, logoCY);
             }
-            ctx.restore();
             ctx.restore();
         }
 
         function drawCertificateAssociationBlock(ctx, width) {
             const associationText = getCertificateAssociationText();
             if (!associationText) return;
-            const labelY = 490;
-            const nameY = 514;
+            const labelY = 584;
+            const nameY = 606;
             ctx.save();
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -7808,349 +7808,6 @@ let authListenerBound = false;
             showToast(`✅ sitemap.xml downloaded with ${posts.length} news ${posts.length === 1 ? "post" : "posts"}. Replace the old one on Netlify.`, "success");
         }
 
-        // =====================================================================
-        // Online Admissions inbox (admin) — admission forms land in public.leads
-        // =====================================================================
-        const ADMISSION_MESSAGE_MARKERS = ["Online admission request", "Official student admission application"];
-        const ADMISSION_POLL_MS = 45000;
-        let admissionKnownIds = null;          // Set of lead ids already seen this session
-        let admissionAlertsBooted = false;
-        let admissionBaseTitle = "";
-        let admissionUnseenSinceFocus = 0;
-
-        function isAdmissionLead(lead) {
-            const first = String(lead?.message || "").split("\n")[0].trim();
-            return ADMISSION_MESSAGE_MARKERS.some((m) => first.startsWith(m));
-        }
-
-        function getAdmissionLeads() {
-            return (adminCache.leads || []).filter(isAdmissionLead);
-        }
-
-        /** Turn the "Key: value" lines the forms write into an object. */
-        function parseAdmissionDetails(lead) {
-            const lines = String(lead?.message || "").split("\n");
-            const out = { source: lines[0]?.startsWith("Official") ? "Admissions page form" : "Apply Online form" };
-            let lastKey = "";
-            lines.slice(1).forEach((line) => {
-                const m = line.match(/^([^:]{2,40}):\s*(.*)$/);
-                if (m) {
-                    lastKey = m[1].trim();
-                    out[lastKey] = m[2].trim();
-                } else if (lastKey && line.trim()) {
-                    out[lastKey] = `${out[lastKey]}\n${line.trim()}`;
-                }
-            });
-            return out;
-        }
-
-        function admissionWhatsAppLink(phone, name) {
-            const digits = String(phone || "").replace(/[^\d]/g, "");
-            if (digits.length < 9) return "";
-            const intl = digits.startsWith("92") ? digits : digits.replace(/^0/, "92");
-            const text = encodeURIComponent(`Assalam o Alaikum ${name || ""}, this is The Spectrum Institute. We received your online admission application.`);
-            return `https://wa.me/${intl}?text=${text}`;
-        }
-
-        function admissionTimeAgo(value) {
-            const t = new Date(value).getTime();
-            if (!Number.isFinite(t)) return "";
-            const sec = Math.max(0, Math.round((Date.now() - t) / 1000));
-            if (sec < 60) return "just now";
-            const min = Math.round(sec / 60);
-            if (min < 60) return `${min} min ago`;
-            const hr = Math.round(min / 60);
-            if (hr < 24) return `${hr} hour${hr === 1 ? "" : "s"} ago`;
-            const day = Math.round(hr / 24);
-            return day < 30 ? `${day} day${day === 1 ? "" : "s"} ago` : "";
-        }
-
-        function admissionDateTime(value) {
-            const d = new Date(value);
-            if (Number.isNaN(d.getTime())) return "";
-            return d.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
-        }
-
-        function updateAdmissionBadges() {
-            const newCount = getAdmissionLeads().filter((l) => String(l.status || "new").toLowerCase() === "new").length;
-            document.querySelectorAll("[data-admission-badge]").forEach((el) => {
-                el.textContent = newCount > 99 ? "99+" : String(newCount);
-                el.hidden = newCount === 0;
-            });
-            const bar = document.getElementById("admissionAlertBar");
-            const text = document.getElementById("admissionAlertText");
-            if (bar && text) {
-                bar.hidden = newCount === 0;
-                text.textContent = newCount === 1 ? "1 new online admission is waiting" : `${newCount} new online admissions are waiting`;
-            }
-            if (!admissionBaseTitle) admissionBaseTitle = document.title.replace(/^\(\d+\+?\)\s*/, "");
-            document.title = newCount ? `(${newCount}) ${admissionBaseTitle}` : admissionBaseTitle;
-        }
-
-        function renderAdminAdmissions() {
-            updateAdmissionBadges();
-            const list = document.getElementById("admissionList");
-            if (!list) return;
-            const all = getAdmissionLeads();
-            const q = String(document.getElementById("admissionSearch")?.value || "").trim().toLowerCase();
-            const status = document.getElementById("admissionStatusFilter")?.value || "";
-
-            const summary = document.getElementById("admissionSummary");
-            if (summary) {
-                const count = (s) => all.filter((l) => String(l.status || "new").toLowerCase() === s).length;
-                const today = new Date().toDateString();
-                const todayCount = all.filter((l) => new Date(l.created_at).toDateString() === today).length;
-                summary.innerHTML = [
-                    ["New", count("new"), "is-new"],
-                    ["Today", todayCount, ""],
-                    ["Contacted", count("contacted"), ""],
-                    ["Enrolled", count("enrolled"), ""],
-                    ["Total", all.length, ""]
-                ].map(([label, n, cls]) => `<div class="admission-stat ${cls}"><strong>${n}</strong><span>${label}</span></div>`).join("");
-            }
-
-            const rows = all.filter((lead) => {
-                if (status && String(lead.status || "new").toLowerCase() !== status) return false;
-                if (!q) return true;
-                return [lead.full_name, lead.father_name, lead.phone, lead.email, lead.course_interest, lead.message]
-                    .map((v) => String(v || "").toLowerCase()).join(" ").includes(q);
-            });
-
-            if (!all.length) {
-                list.innerHTML = `<p class="admin-table-empty">No online admissions yet. When someone applies on the website, it will appear here.</p>`;
-                return;
-            }
-            if (!rows.length) {
-                list.innerHTML = `<p class="admin-table-empty">No admissions match this search or status.</p>`;
-                return;
-            }
-
-            const statuses = ["new", "contacted", "enrolled", "archived"];
-            list.innerHTML = rows.map((lead) => {
-                const id = escapeJsString(lead.id);
-                const d = parseAdmissionDetails(lead);
-                const st = String(lead.status || "new").toLowerCase();
-                const wa = admissionWhatsAppLink(lead.phone, lead.full_name);
-                const tel = String(lead.phone || "").replace(/[^\d+]/g, "");
-                const guardian = d["Father / Guardian phone"];
-                const facts = [
-                    ["Father", lead.father_name || d.Father],
-                    ["Gender", d.Gender],
-                    ["Date of birth", lead.dob || d.DOB],
-                    ["Education", d.Education],
-                    ["Shift", d["Preferred shift"]],
-                    ["Guardian phone", guardian]
-                ].filter(([, v]) => String(v || "").trim());
-                const ago = admissionTimeAgo(lead.created_at);
-                const realEmail = lead.email && !/^admission\.\d+@tsi\.com$/i.test(lead.email) ? lead.email : "";
-                return `<article class="admission-card${st === "new" ? " is-new" : ""}">
-                    <div class="admission-card-top">
-                        <div>
-                            ${st === "new" ? `<span class="admission-new-tag">NEW</span>` : ""}
-                            <h3>${escapeHtml(lead.full_name || "Unnamed")}</h3>
-                            <p class="admission-course">${escapeHtml(lead.course_interest || "Course not selected")}</p>
-                        </div>
-                        <p class="admission-time" title="${escapeHtml(admissionDateTime(lead.created_at))}">${escapeHtml(ago || admissionDateTime(lead.created_at))}<br><small>${escapeHtml(d.source)}</small></p>
-                    </div>
-                    <dl class="admission-facts">
-                        <div><dt>Phone</dt><dd>${escapeHtml(lead.phone || "—")}</dd></div>
-                        ${realEmail ? `<div><dt>Email</dt><dd>${escapeHtml(realEmail)}</dd></div>` : ""}
-                        ${facts.map(([k, v]) => `<div><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`).join("")}
-                    </dl>
-                    <div class="admission-actions">
-                        ${wa ? `<a class="admin-action-btn admission-wa" href="${escapeHtml(wa)}" target="_blank" rel="noopener" onclick="markAdmissionContacted('${id}')">WhatsApp</a>` : ""}
-                        ${tel ? `<a class="admin-action-btn" href="tel:${escapeHtml(tel)}" onclick="markAdmissionContacted('${id}')">Call</a>` : ""}
-                        <button type="button" class="admin-action-btn" onclick="openAdmissionDetail('${id}')">View full form</button>
-                        ${st === "enrolled"
-                            ? `<span class="admin-action-btn lead-add-btn is-done">Enrolled</span>`
-                            : `<button type="button" class="admin-action-btn lead-add-btn" onclick="promoteLeadToStudent('${id}', this)">+ Add as Student</button>`}
-                        <select class="lead-status-select" aria-label="Status" onchange="updateLeadStatus('${id}', this.value)">
-                            ${statuses.map((s) => `<option value="${s}" ${st === s ? "selected" : ""}>${s}</option>`).join("")}
-                        </select>
-                    </div>
-                </article>`;
-            }).join("");
-        }
-
-        async function markAdmissionContacted(id) {
-            const lead = (adminCache.leads || []).find((l) => l.id === id);
-            if (!lead || String(lead.status || "new").toLowerCase() !== "new") return;
-            lead.status = "contacted";
-            renderAdminAdmissions();
-            try {
-                await supabaseClient.from("leads").update({ status: "contacted" }).eq("id", id);
-            } catch (err) {
-                console.warn("[Admissions] could not mark contacted:", err);
-            }
-        }
-
-        function openAdmissionDetail(id) {
-            const lead = (adminCache.leads || []).find((l) => l.id === id);
-            const modal = document.getElementById("admissionDetailModal");
-            const body = document.getElementById("admissionDetailBody");
-            if (!lead || !modal || !body) return;
-            const d = parseAdmissionDetails(lead);
-            const rows = [
-                ["Name", lead.full_name],
-                ["Father's name", lead.father_name || d.Father],
-                ["Gender", d.Gender],
-                ["Date of birth", lead.dob || d.DOB],
-                ["Phone / WhatsApp", lead.phone],
-                ["Email", lead.email && !/^admission\.\d+@tsi\.com$/i.test(lead.email) ? lead.email : ""],
-                ["Course", lead.course_interest],
-                ["Education", d.Education],
-                ["Preferred shift", d["Preferred shift"]],
-                ["Father / Guardian phone", d["Father / Guardian phone"]],
-                ["Notes", d.Notes && d.Notes !== "None" ? d.Notes : ""],
-                ["Status", lead.status || "new"],
-                ["Received", admissionDateTime(lead.created_at)],
-                ["Form", d.source]
-            ].filter(([, v]) => String(v || "").trim());
-            document.getElementById("admissionDetailTitle").textContent = lead.full_name || "Admission details";
-            body.innerHTML = `<dl class="admission-detail-list">${rows.map(([k, v]) => `<div><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`).join("")}</dl>
-                <div class="admission-actions">
-                    <button type="button" class="admin-action-btn" onclick="copyAdmissionDetails('${escapeJsString(lead.id)}', this)">Copy details</button>
-                    <button type="button" class="admin-action-btn" onclick="window.print()">Print</button>
-                </div>`;
-            modal.classList.add("open");
-        }
-
-        function closeAdmissionDetail() {
-            document.getElementById("admissionDetailModal")?.classList.remove("open");
-        }
-
-        async function copyAdmissionDetails(id, btn) {
-            const lead = (adminCache.leads || []).find((l) => l.id === id);
-            if (!lead) return;
-            const text = [
-                `New admission: ${lead.full_name}`,
-                `Course: ${lead.course_interest || "-"}`,
-                `Phone: ${lead.phone || "-"}`,
-                lead.father_name ? `Father: ${lead.father_name}` : "",
-                lead.message || ""
-            ].filter(Boolean).join("\n");
-            try {
-                await navigator.clipboard.writeText(text);
-                if (btn) btn.textContent = "Copied ✓";
-            } catch {
-                window.prompt("Copy these details:", text);
-            }
-        }
-
-        // ---------- Alerts: sound + pop-up when a new admission arrives ----------
-        function playAdmissionChime() {
-            try {
-                const Ctx = window.AudioContext || window.webkitAudioContext;
-                if (!Ctx) return;
-                const ctx = playAdmissionChime.ctx || (playAdmissionChime.ctx = new Ctx());
-                if (ctx.state === "suspended") ctx.resume();
-                [880, 1175].forEach((freq, i) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = "sine";
-                    osc.frequency.value = freq;
-                    const start = ctx.currentTime + i * 0.18;
-                    gain.gain.setValueAtTime(0.0001, start);
-                    gain.gain.exponentialRampToValueAtTime(0.25, start + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
-                    osc.connect(gain).connect(ctx.destination);
-                    osc.start(start);
-                    osc.stop(start + 0.4);
-                });
-            } catch (err) {
-                console.warn("[Admissions] chime failed:", err);
-            }
-        }
-
-        function syncAdmissionAlertsSetting() {
-            const state = document.getElementById("admissionAlertsState");
-            const btn = document.getElementById("admissionAlertsBtn");
-            if (!state || !btn) return;
-            if (!("Notification" in window)) {
-                state.textContent = "🔔 Sound alerts are on while this page is open. (This browser does not support pop-up notifications.)";
-                btn.hidden = true;
-            } else if (Notification.permission === "granted") {
-                state.textContent = "✅ Alerts are on. You will get a pop-up and sound for every new admission while this dashboard is open (even in another tab).";
-                btn.hidden = true;
-            } else if (Notification.permission === "denied") {
-                state.textContent = "🔕 Pop-ups are blocked for this site in your browser settings. You will still hear a sound while this page is open.";
-                btn.hidden = true;
-            } else {
-                btn.hidden = false;
-            }
-        }
-
-        async function enableAdmissionAlerts() {
-            playAdmissionChime(); // also unlocks audio after a user click
-            if ("Notification" in window && Notification.permission === "default") {
-                try { await Notification.requestPermission(); } catch (_) { /* ignore */ }
-            }
-            syncAdmissionAlertsSetting();
-            if ("Notification" in window && Notification.permission === "granted") {
-                showToast("✅ Admission alerts turned on.", "success");
-            }
-        }
-
-        function announceNewAdmissions(newLeads) {
-            if (!newLeads.length) return;
-            const first = newLeads[0];
-            const title = newLeads.length === 1 ? "New online admission" : `${newLeads.length} new online admissions`;
-            const body = newLeads.length === 1
-                ? `${first.full_name || "Someone"} applied for ${first.course_interest || "a course"}. Phone: ${first.phone || "-"}`
-                : newLeads.map((l) => `${l.full_name} (${l.course_interest || "-"})`).join(", ");
-            showToast(`🎓 ${title}: ${body}`, "success");
-            playAdmissionChime();
-            if ("Notification" in window && Notification.permission === "granted") {
-                try {
-                    const n = new Notification(title, { body, icon: resolveSiteAsset("logo.png"), tag: `tsi-admission-${first.id}` });
-                    n.onclick = () => { window.focus(); switchAdminTab("admissions"); n.close(); };
-                } catch (err) {
-                    console.warn("[Admissions] notification failed:", err);
-                }
-            }
-            if (document.hidden) admissionUnseenSinceFocus += newLeads.length;
-        }
-
-        /** Compare against ids we have already seen and alert for genuinely new admissions. */
-        function detectNewAdmissions() {
-            const current = getAdmissionLeads();
-            if (admissionKnownIds === null) {
-                admissionKnownIds = new Set(current.map((l) => l.id));
-                return;
-            }
-            const fresh = current.filter((l) => !admissionKnownIds.has(l.id));
-            fresh.forEach((l) => admissionKnownIds.add(l.id));
-            announceNewAdmissions(fresh);
-        }
-
-        function initAdmissionAlerts() {
-            if (admissionAlertsBooted || !supabaseClient || !document.getElementById("admissionList")) return;
-            admissionAlertsBooted = true;
-            syncAdmissionAlertsSetting();
-            try {
-                supabaseClient
-                    .channel("admin-new-admissions")
-                    .on("postgres_changes", { event: "INSERT", schema: "public", table: "leads" }, () => {
-                        refreshAdminLeads().catch((err) => console.warn("[Admissions] refresh failed:", err));
-                    })
-                    .subscribe();
-            } catch (err) {
-                console.warn("[Admissions] realtime subscribe skipped:", err);
-            }
-            // Backup check in case realtime is not enabled for the leads table
-            setInterval(() => {
-                if (!adminSessionUser) return;
-                refreshAdminLeads().catch(() => {});
-            }, ADMISSION_POLL_MS);
-            // Keep "x min ago" fresh
-            setInterval(() => {
-                if (document.getElementById("adminPanelAdmissions")?.hidden === false) renderAdminAdmissions();
-            }, 60000);
-            document.addEventListener("visibilitychange", () => {
-                if (!document.hidden) admissionUnseenSinceFocus = 0;
-            });
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const ctx = getAppContext();
             initThemePreference();
@@ -8541,8 +8198,8 @@ let authListenerBound = false;
 
             (async () => {
                 await guideChatBotSay(win, "Hello! 👋 I'll help you verify your certificate. Let's go through it step by step.");
-                await guideChatBotSay(win, "First, please enter your <strong>Certificate ID</strong> (as printed on the certificate, e.g. TSI-2026-001):");
-                verifyAssistantSetPlaceholder("e.g. TSI-2026-001");
+                await guideChatBotSay(win, "First, please enter your <strong>Certificate ID</strong> (as printed on the certificate, e.g. TSI-AI-001):");
+                verifyAssistantSetPlaceholder("e.g. TSI-AI-001");
             })();
         }
 
@@ -8599,7 +8256,7 @@ let authListenerBound = false;
             if (choice === "restart") {
                 verifyAssistantState = { step: "certId", certId: "", studentName: "", fatherName: "", dob: "" };
                 await guideChatBotSay(win, "Okay, let's start over. Please enter the Certificate ID:");
-                verifyAssistantSetPlaceholder("e.g. TSI-2026-001");
+                verifyAssistantSetPlaceholder("e.g. TSI-AI-001");
                 return;
             }
 
