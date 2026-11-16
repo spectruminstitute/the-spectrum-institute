@@ -4899,8 +4899,9 @@
         }
 
         const CERT_CDN = {
-            qrcode: "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js",
-            jspdf: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+            // served from this website (the CSP blocks outside scripts, and it works offline too)
+            qrcode: "/js/vendor/tsi-qr.js",
+            jspdf: "/js/vendor/jspdf.umd.min.js"
         };
 
         let certLibraryLoadPromise = null;
