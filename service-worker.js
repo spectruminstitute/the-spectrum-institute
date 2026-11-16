@@ -1,7 +1,7 @@
 // The Spectrum Institute (TSI) - Service Worker
 // Enables "Add to Home Screen" / installable app behavior and basic offline support.
 
-const CACHE_NAME = "tsi-spectrum-cache-v5";
+const CACHE_NAME = "tsi-spectrum-cache-v10";
 const OFFLINE_URL = "/index.html";
 
 const PRECACHE_ASSETS = [
@@ -9,6 +9,7 @@ const PRECACHE_ASSETS = [
   "/manifest.json",
   "/css/style.css",
   "/js/app.js",
+  "/js/app-splash.js",
   "/logo.png",
   "/icons/icon-192.png",
   "/icons/icon-512.png"
