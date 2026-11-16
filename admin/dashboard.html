@@ -20,7 +20,7 @@
     <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
     <link rel="shortcut icon" href="../logo.png">
     <link rel="stylesheet" href="../css/style.css">
-    <script src="../js/vendor/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="../js/vendor/jspdf.umd.min.js"></script>
     <script src="../js/vendor/chart.umd.min.js"></script>
 </head>
@@ -35,7 +35,6 @@
                     <li><span class="admin-nav-label">Admin Console</span></li>
                     <li><span class="admin-nav-email" id="adminNavEmail"></span></li>
                     <li class="admin-nav-tabs" aria-hidden="true">
-                        <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('admissions')">Admissions <span class="admission-count-badge" data-admission-badge hidden>0</span></button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('students')">Students</button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('courses')">Courses</button>
                         <button type="button" class="admin-nav-tab-chip" onclick="switchAdminTab('certificates')">Certificates</button>
@@ -61,12 +60,6 @@
                 </div>
                 <button type="button" class="cta-btn secondary admin-refresh-btn" onclick="refreshAdminDashboard()">↻ Refresh Data</button>
             </header>
-
-            <button type="button" class="admission-alert-bar" id="admissionAlertBar" hidden onclick="switchAdminTab('admissions')">
-                <span class="admission-alert-dot" aria-hidden="true"></span>
-                <span id="admissionAlertText">New online admission</span>
-                <span class="admission-alert-cta">View now →</span>
-            </button>
 
             <div class="admin-stats-grid" id="adminStatsGrid">
                 <article class="admin-stat-card">
@@ -100,7 +93,6 @@
 
             <div class="admin-shell">
                 <aside class="admin-side-nav" aria-label="Dashboard sections">
-                    <button type="button" class="admin-tab-btn" data-admin-tab="admissions" onclick="switchAdminTab('admissions')">Online Admissions <span class="admission-count-badge" data-admission-badge hidden>0</span></button>
                     <button type="button" class="admin-tab-btn active" data-admin-tab="students" onclick="switchAdminTab('students')">Student Management</button>
                     <button type="button" class="admin-tab-btn" data-admin-tab="courses" onclick="switchAdminTab('courses')">Course &amp; Batch Management</button>
                     <button type="button" class="admin-tab-btn" data-admin-tab="certificates" onclick="switchAdminTab('certificates')">Certificate Management</button>
@@ -368,10 +360,10 @@
                                 <div class="form-group cert-id-field-group">
                                     <label for="admCertId">Certificate ID *</label>
                                     <div class="cert-id-input-group">
-                                        <input type="text" id="admCertId" required placeholder="TSI-2026-001" readonly autocomplete="off">
+                                        <input type="text" id="admCertId" required placeholder="Choose a student first (e.g. TSI-AI-001)" readonly autocomplete="off">
                                         <button type="button" id="admCertIdModeBtn" class="cert-id-mode-btn is-auto" aria-pressed="true" title="Click to switch to Manual Mode" onclick="toggleCertIdMode()">Auto Mode</button>
                                     </div>
-                                    <p class="field-hint" id="admCertIdHint">Auto Mode assigns the next sequential ID (TSI-YYYY-NNN). Switch to Manual to type a custom ID.</p>
+                                    <p class="field-hint" id="admCertIdHint">Auto Mode gives the next number for the student course (e.g. TSI-AI-001, TSI-CS-001). Switch to Manual to type a custom ID.</p>
                                     <p class="field-hint field-hint-warn" id="admCertIdDupHint" hidden></p>
                                 </div>
                                 <div class="form-group">
@@ -449,38 +441,10 @@
                         </div>
                     </div>
 
-                    <div class="admin-panel" id="adminPanelAdmissions" data-panel="admissions" hidden>
-                        <div class="admin-panel-head">
-                            <div>
-                                <h2>Online Admissions</h2>
-                                <p>Every admission form submitted on the website appears here instantly. New applications are marked <strong>NEW</strong> until you change their status.</p>
-                            </div>
-                            <button type="button" class="cta-btn secondary" onclick="refreshAdminLeads()">↻ Refresh</button>
-                        </div>
-                        <div class="admission-alerts-setting" id="admissionAlertsSetting">
-                            <span id="admissionAlertsState">🔔 Get a pop-up and sound on this computer or phone when a new admission arrives.</span>
-                            <button type="button" class="admin-action-btn" id="admissionAlertsBtn" onclick="enableAdmissionAlerts()">Turn on alerts</button>
-                        </div>
-                        <div class="admission-summary" id="admissionSummary"></div>
-                        <div class="leads-toolbar admission-toolbar">
-                            <input type="search" id="admissionSearch" placeholder="Search name, phone or course…" oninput="renderAdminAdmissions()">
-                            <select id="admissionStatusFilter" onchange="renderAdminAdmissions()">
-                                <option value="">All statuses</option>
-                                <option value="new">New</option>
-                                <option value="contacted">Contacted</option>
-                                <option value="enrolled">Enrolled</option>
-                                <option value="archived">Archived</option>
-                            </select>
-                        </div>
-                        <div class="admission-list" id="admissionList">
-                            <p class="admin-table-empty">Loading admissions…</p>
-                        </div>
-                    </div>
-
                     <div class="admin-panel" id="adminPanelLeads" data-panel="leads" hidden>
                       <div class="admin-panel-head">
                         <h2>Inquiry Leads</h2>
-                        <p>All messages from the public website, including admissions and contact inquiries. Online admissions also have their own tab.</p>
+                        <p>Admission applications from the public portal — follow up on WhatsApp or promote a lead to an official student.</p>
                       </div>
                       <div class="leads-toolbar">
                         <select id="leadsStatusFilter" onchange="renderAdminLeadsTable()">
@@ -928,16 +892,6 @@
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="admissionDetailModal" onclick="if(event.target.id==='admissionDetailModal')closeAdmissionDetail()">
-        <div class="modal-card admission-detail-card" role="dialog" aria-modal="true" aria-labelledby="admissionDetailTitle">
-            <button type="button" class="modal-close-btn" onclick="closeAdmissionDetail()">&times;</button>
-            <div class="modal-header">
-                <h3 id="admissionDetailTitle">Admission details</h3>
-            </div>
-            <div class="modal-body" id="admissionDetailBody"></div>
         </div>
     </div>
 
