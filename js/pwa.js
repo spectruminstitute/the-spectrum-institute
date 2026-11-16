@@ -38,8 +38,8 @@
       "}",
       "#tsi-install-btn:hover{transform:translateY(-2px);}",
       "#tsi-install-btn:before{content:'';width:18px;height:18px;border-radius:5px;",
-      "background:image-set(url('/icons/icon-32.png') 1x) no-repeat center/cover;",
-      "background:url('/icons/icon-32.png') no-repeat center/cover;flex:0 0 auto;}",
+      "background:image-set(url('/icons/tsi-app-96.png') 1x) no-repeat center/cover;",
+      "background:url('/icons/tsi-app-96.png') no-repeat center/cover;flex:0 0 auto;}",
       "@media (max-width:480px){#tsi-install-btn{right:14px;bottom:14px;padding:11px 16px;font-size:13px;}}"
     ].join("");
     document.head.appendChild(style);
