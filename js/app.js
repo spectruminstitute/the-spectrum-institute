@@ -2451,7 +2451,8 @@
             const chips = document.querySelectorAll('.admin-nav-tab-chip');
             chips.forEach((chip) => {
                 const label = (chip.textContent || "").trim().toLowerCase();
-                const match =
+                const chipKey = chip.getAttribute('data-admin-tab');
+                const match = chipKey ? chipKey === tabName :
                     (tabName === 'students' && label.startsWith('student')) ||
                     (tabName === 'courses' && label.startsWith('course')) ||
                     (tabName === 'certificates' && label.startsWith('cert')) ||

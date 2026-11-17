@@ -597,3 +597,231 @@ body.hud-login .admin-login-body {
 body.hud-login .admin-login-card input {
     background-color: rgba(4, 14, 28, 0.95) !important;
 }
+
+/* =====================================================================
+   LEFT SIDEBAR NAVIGATION (desktop ≥ 901px)
+   One clean menu on the left — no duplicate top bar / inner menu.
+   ===================================================================== */
+.hud-brand { display: flex; flex-direction: column; line-height: 1.1; }
+.hud-brand-name { white-space: nowrap; }
+.hud-brand-sub {
+    font-family: "Rajdhani", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #8fd6f0;
+    margin-top: 4px;
+}
+.hud-side-section, .hud-side-spacer, .hud-side-user { list-style: none; }
+.hud-bell-text { display: none; }
+
+@media (min-width: 901px) {
+    body.admin-page.admin-session { padding-left: 264px; }
+
+    body.admin-page .main-navbar.hud-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 264px !important;
+        height: 100vh !important;
+        border-bottom: 0 !important;
+        border-right: 1px solid rgba(63, 216, 255, 0.28) !important;
+        box-shadow: 1px 0 30px rgba(63, 216, 255, 0.08) !important;
+        background: rgba(4, 12, 24, 0.97) !important;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 10000;
+    }
+    body.admin-page .hud-sidebar .nav-container {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        height: 100%;
+        min-height: 100%;
+        box-sizing: border-box;
+        padding: 22px 16px 18px !important;
+        gap: 22px !important;
+    }
+    body.admin-page .hud-sidebar .nav-logo {
+        font-size: 1.15rem !important;
+        gap: 12px !important;
+        padding-bottom: 18px;
+        border-bottom: 1px solid rgba(63, 216, 255, 0.18);
+    }
+    body.admin-page .hud-sidebar .nav-logo-img { width: 46px; height: 46px; }
+    body.admin-page .hud-sidebar .nav-controls {
+        flex: 1 1 auto;
+        display: flex !important;
+        flex-direction: column;
+        min-height: 0;
+        width: 100%;
+    }
+    body.admin-page .hud-sidebar .admin-nav-links,
+    body.admin-session:not(.auth-resolving).admin-page .hud-sidebar .admin-nav-links {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        align-items: stretch !important;
+        gap: 4px !important;
+        flex: 1 1 auto;
+        width: 100% !important;
+        margin: 0;
+        padding: 0;
+        position: static !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+    body.admin-page .hud-sidebar .hud-side-section {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #6f9db3;
+        padding: 0 12px 6px;
+    }
+    body.admin-page .hud-sidebar .admin-nav-tabs,
+    body.admin-session:not(.auth-resolving).admin-page .hud-sidebar .admin-nav-tabs {
+        display: flex !important;
+        flex-direction: column;
+        gap: 4px;
+    }
+    body.admin-page .hud-sidebar .admin-nav-tab-chip {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: 0 !important;
+        color: #b9e6f7 !important;
+        font-family: "Rajdhani", sans-serif;
+        font-size: 1rem !important;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-align: left;
+        cursor: pointer;
+        box-shadow: none !important;
+        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    body.admin-page .hud-sidebar .admin-nav-tab-chip svg { flex: 0 0 18px; opacity: 0.9; }
+    body.admin-page .hud-sidebar .admin-nav-tab-chip:hover {
+        background: rgba(63, 216, 255, 0.1) !important;
+        border-color: rgba(63, 216, 255, 0.3) !important;
+        color: #ffffff !important;
+    }
+    body.admin-page .hud-sidebar .admin-nav-tab-chip.active {
+        background: #3fd8ff !important;
+        border-color: #3fd8ff !important;
+        color: #041018 !important;
+        box-shadow: 0 0 20px rgba(63, 216, 255, 0.4) !important;
+        clip-path: polygon(0 0, 94% 0, 100% 30%, 100% 100%, 6% 100%, 0 70%);
+    }
+    body.admin-page .hud-sidebar .admin-nav-tab-chip.active svg { opacity: 1; }
+
+    /* Bell as a full menu row */
+    body.admin-page .hud-sidebar .hud-bell-li { margin-top: 10px; }
+    body.admin-page .hud-sidebar .hud-bell-btn {
+        width: 100%;
+        height: auto;
+        min-height: 48px;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 0 14px;
+        font-family: "Rajdhani", sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #ffcf8a;
+        border-color: rgba(255, 179, 71, 0.45);
+        background: rgba(255, 179, 71, 0.06);
+    }
+    body.admin-page .hud-sidebar .hud-bell-btn:hover { background: rgba(255, 179, 71, 0.14); }
+    body.admin-page .hud-sidebar .hud-bell-text { display: inline; }
+    body.admin-page .hud-sidebar .hud-bell-badge {
+        position: static;
+        margin-left: auto;
+    }
+    body.admin-page .hud-sidebar .hud-feed {
+        position: fixed;
+        top: 20px;
+        left: 276px;
+        right: auto;
+    }
+
+    body.admin-page .hud-sidebar .hud-side-spacer { flex: 1 1 auto; min-height: 16px; }
+    body.admin-page .hud-sidebar .hud-side-user {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 12px;
+        border: 1px solid rgba(63, 216, 255, 0.2);
+        background: rgba(63, 216, 255, 0.04);
+    }
+    body.admin-page .hud-sidebar .hud-side-user-label {
+        font-size: 0.72rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #6f9db3;
+        font-weight: 700;
+    }
+    body.admin-page .hud-sidebar .admin-nav-email {
+        display: block !important;
+        color: #d8f3ff !important;
+        font-size: 0.9rem;
+        overflow-wrap: anywhere;
+    }
+    body.admin-page .hud-sidebar .hud-side-logout { list-style: none; margin-top: 8px; }
+    body.admin-page .hud-sidebar .hud-side-logout .nav-logout-btn {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    /* The old inner menu is no longer needed on desktop */
+    body.admin-page .admin-shell { grid-template-columns: minmax(0, 1fr) !important; }
+    body.admin-page .admin-shell > .admin-side-nav { display: none !important; }
+    body.admin-page .admin-dashboard-inner { max-width: 1320px; }
+}
+
+/* Small screens: compact top bar + the section menu inside the page */
+@media (max-width: 900px) {
+    body.admin-page .hud-sidebar .admin-nav-tabs,
+    body.admin-page .hud-sidebar .hud-side-section,
+    body.admin-page .hud-sidebar .hud-side-spacer,
+    body.admin-page .hud-sidebar .hud-side-user { display: none !important; }
+    body.admin-page .hud-sidebar .hud-brand-sub { display: none; }
+    body.admin-page .hud-sidebar .admin-nav-links {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-end;
+        gap: 10px !important;
+        width: auto !important;
+    }
+    body.admin-page .hud-sidebar .hud-side-logout { list-style: none; }
+}
+@media (min-width: 901px) {
+    body.admin-page .hud-sidebar .nav-container { height: auto !important; min-height: 100%; }
+    body.admin-page .hud-sidebar .nav-controls {
+        flex: 1 0 auto !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        position: static !important;
+    }
+    body.admin-page .hud-sidebar .admin-nav-tab-chip { min-height: 42px; }
+}
+@media (min-width: 901px) and (max-height: 760px) {
+    body.admin-page .hud-sidebar .nav-container { gap: 14px !important; padding-top: 16px !important; }
+    body.admin-page .hud-sidebar .nav-logo { padding-bottom: 12px; }
+    body.admin-page .hud-sidebar .admin-nav-tab-chip { min-height: 38px; }
+}
+@media (min-width: 901px) {
+    body.admin-page .main-navbar.hud-sidebar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; transform: none !important; filter: none !important; }
+}

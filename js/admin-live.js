@@ -77,6 +77,7 @@
         li.innerHTML =
             '<button type="button" class="hud-bell-btn" id="hudBellBtn" aria-label="New admissions" aria-expanded="false" aria-controls="hudFeed">' +
             '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10 21a2 2 0 0 0 4 0"></path></svg>' +
+            '<span class="hud-bell-text">New Admissions</span>' +
             '<span class="hud-bell-badge" id="hudBellBadge" hidden>0</span></button>' +
             '<div class="hud-feed" id="hudFeed" role="region" aria-label="Latest admissions" hidden>' +
             '<div class="hud-feed-head"><span class="hud-feed-title">NEW ADMISSIONS</span>' +
@@ -84,8 +85,10 @@
             '<ul class="hud-feed-list" id="hudFeedList"><li class="hud-feed-empty">Loading…</li></ul>' +
             '<div class="hud-feed-foot"><button type="button" class="hud-feed-link" id="hudOpenLeads">Open Inquiry Leads →</button>' +
             '<button type="button" class="hud-feed-link" id="hudSoundToggle"></button></div></div>';
+        const tabsLi = nav.querySelector(".admin-nav-tabs");
         const logoutLi = nav.querySelector(".nav-logout-btn")?.closest("li");
-        nav.insertBefore(li, logoutLi || null);
+        if (tabsLi && tabsLi.nextSibling) nav.insertBefore(li, tabsLi.nextSibling);
+        else nav.insertBefore(li, logoutLi || null);
 
         const btn = li.querySelector("#hudBellBtn");
         const feed = li.querySelector("#hudFeed");
