@@ -1,7 +1,7 @@
 // The Spectrum Institute (TSI) - Service Worker
 // Enables "Add to Home Screen" / installable app behavior and basic offline support.
 
-const CACHE_NAME = "tsi-spectrum-cache-v14";
+const CACHE_NAME = "tsi-spectrum-cache-v15";
 const OFFLINE_URL = "/index.html";
 
 const PRECACHE_ASSETS = [
@@ -62,6 +62,23 @@ self.addEventListener("fetch", (event) => {
         .catch(() =>
           caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL))
         )
+    );
+    return;
+  }
+
+  // CSS / JS: network-first so a new upload is used immediately (cache only for offline)
+  const url = new URL(request.url);
+  if (url.origin === self.location.origin && /\.(css|js)$/i.test(url.pathname)) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200 && response.type === "basic") {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
     );
     return;
   }
