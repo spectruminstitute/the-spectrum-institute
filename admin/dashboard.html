@@ -7,18 +7,19 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@500;600;700&family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/tsi-icon-32.png">
     <link rel="icon" type="image/png" sizes="48x48" href="/icons/tsi-icon-48.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/tsi-icon-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/tsi-app-apple-180.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0c1836">
+    <meta name="theme-color" content="#040a14">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TSI Spectrum">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin-hud.css">
     <script src="../js/vendor/tsi-qr.js"></script>
     <script src="../js/vendor/jspdf.umd.min.js"></script>
     <script src="../js/vendor/chart.umd.min.js"></script>
@@ -53,8 +54,8 @@
         <div class="admin-dashboard-inner">
             <header class="admin-dash-header">
                 <div>
-                    <p class="admin-dash-eyebrow">The Spectrum Institute</p>
-                    <h1>Admin Dashboard</h1>
+                    <p class="admin-dash-eyebrow">Welcome back, Admin · The Spectrum Institute</p>
+                    <h1>Command Dashboard</h1>
                     <p class="admin-dash-sub">Secure operations console for enrollments, courses, and certificates.</p>
                 </div>
                 <button type="button" class="cta-btn secondary admin-refresh-btn" onclick="refreshAdminDashboard()">↻ Refresh Data</button>
@@ -898,6 +899,7 @@
     <script src="../js/vendor/papaparse.min.js" defer></script>
     <script src="../js/admin-auth.js" defer></script>
     <script src="../js/app.js" defer></script>
+    <script src="../js/admin-live.js" defer></script>
     <script src="/js/pwa.js" defer></script>
 </body>
 </html>

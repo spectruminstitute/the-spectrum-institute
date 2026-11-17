@@ -1,0 +1,599 @@
+/* =====================================================================
+   The Spectrum Institute — Admin Panel "JARVIS HUD" theme
+   Loaded only on /admin pages, after style.css.
+   Developed by Netaford Company
+   ===================================================================== */
+
+body.admin-page,
+body.admin-page.light-mode,
+body.hud-login,
+body.hud-login.light-mode {
+    --bg-dark: #040a14;
+    --bg-light-body: #d8f3ff;
+    --card-bg: rgba(8, 24, 44, 0.86);
+    --card-bg-solid: #0a1a30;
+    --primary-neon: #3fd8ff;
+    --primary-navy: #040a14;
+    --accent-green: #7dffb2;
+    --accent-gold: #ffb347;
+    --text-dark: #d8f3ff;
+    --text-light: #d8f3ff;
+    --text-muted: #8fb8cc;
+    --text-body: #c4e6f5;
+    --border-color: rgba(63, 216, 255, 0.28);
+    --border-subtle: rgba(63, 216, 255, 0.16);
+    --card-shadow: 0 0 0 1px rgba(63, 216, 255, 0.08), 0 14px 40px rgba(0, 0, 0, 0.45);
+    --hud-cyan: #3fd8ff;
+    --hud-cyan-soft: rgba(63, 216, 255, 0.14);
+    --hud-amber: #ffb347;
+    --hud-green: #7dffb2;
+    --hud-red: #ff6b8b;
+    --font-body: "Rajdhani", "DM Sans", "Segoe UI", sans-serif;
+    --font-display: "Orbitron", "Space Grotesk", sans-serif;
+
+    background-color: #040a14 !important;
+    background-image:
+        radial-gradient(circle at 75% 0%, rgba(63, 216, 255, 0.10), transparent 45%),
+        linear-gradient(rgba(63, 216, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(63, 216, 255, 0.045) 1px, transparent 1px) !important;
+    background-size: auto, 40px 40px, 40px 40px !important;
+    background-attachment: fixed;
+    color: #d8f3ff !important;
+    font-family: var(--font-body);
+    font-size: 16.5px;
+}
+
+:is(body.admin-page, body.hud-login) h1,
+:is(body.admin-page, body.hud-login) h2,
+:is(body.admin-page, body.hud-login) h3 {
+    font-family: var(--font-display);
+    letter-spacing: 2px;
+}
+
+:is(body.admin-page, body.hud-login) ::selection { background: rgba(63, 216, 255, 0.35); color: #ffffff; }
+
+/* ---------- Top bar ---------- */
+:is(body.admin-page, body.hud-login) .main-navbar {
+    background: rgba(5, 14, 28, 0.92) !important;
+    border-bottom: 1px solid rgba(63, 216, 255, 0.35) !important;
+    box-shadow: 0 1px 24px rgba(63, 216, 255, 0.12) !important;
+    backdrop-filter: blur(10px) !important;
+}
+:is(body.admin-page, body.hud-login) .main-navbar .nav-logo,
+:is(body.admin-page, body.hud-login) .main-navbar .nav-logo span {
+    color: #ffffff !important;
+    font-family: var(--font-display);
+    letter-spacing: 2px;
+}
+:is(body.admin-page, body.hud-login) .main-navbar .nav-logo span { color: var(--hud-cyan) !important; }
+:is(body.admin-page, body.hud-login) .main-navbar .nav-logo-img {
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--hud-cyan), 0 0 16px rgba(63, 216, 255, 0.55);
+}
+:is(body.admin-page, body.hud-login) .admin-nav-label {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    letter-spacing: 3px;
+    color: var(--hud-cyan) !important;
+    text-transform: uppercase;
+}
+:is(body.admin-page, body.hud-login) .admin-nav-email { color: #a9d8ec !important; font-weight: 600; }
+:is(body.admin-page, body.hud-login) .admin-nav-tab-chip {
+    background: transparent !important;
+    border: 1px solid rgba(63, 216, 255, 0.35) !important;
+    color: #cfefff !important;
+    font-family: var(--font-body);
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 0 !important;
+}
+:is(body.admin-page, body.hud-login) .admin-nav-tab-chip:hover { background: var(--hud-cyan-soft) !important; color: #ffffff !important; }
+:is(body.admin-page, body.hud-login) .nav-logout-btn {
+    background: transparent !important;
+    color: var(--hud-red) !important;
+    border: 1px solid rgba(255, 107, 139, 0.6) !important;
+    border-radius: 0 !important;
+    font-family: var(--font-display);
+    font-size: 0.72rem !important;
+    letter-spacing: 2px;
+    box-shadow: none !important;
+}
+:is(body.admin-page, body.hud-login) .nav-logout-btn:hover { background: rgba(255, 107, 139, 0.14) !important; }
+
+/* ---------- Dashboard shell ---------- */
+:is(body.admin-page, body.hud-login) .admin-dashboard {
+    background: transparent !important;
+    padding: 30px 24px 70px;
+}
+:is(body.admin-page, body.hud-login) .admin-dashboard-inner { max-width: 1400px; }
+
+:is(body.admin-page, body.hud-login) .admin-dash-header {
+    border-bottom: 1px solid rgba(63, 216, 255, 0.2);
+    padding-bottom: 18px;
+}
+:is(body.admin-page, body.hud-login) .admin-dash-eyebrow {
+    color: #8fd6f0 !important;
+    font-family: var(--font-body);
+    letter-spacing: 4px;
+    font-size: 0.82rem;
+}
+:is(body.admin-page, body.hud-login) .admin-dash-eyebrow::before { content: "// "; color: var(--hud-cyan); }
+:is(body.admin-page, body.hud-login) .admin-dash-header h1 {
+    color: #ffffff;
+    font-size: clamp(1.6rem, 3vw, 2.3rem);
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-shadow: 0 0 18px rgba(63, 216, 255, 0.55);
+}
+:is(body.admin-page, body.hud-login) .admin-dash-sub { color: #8fb8cc; }
+
+/* ---------- Buttons ---------- */
+:is(body.admin-page, body.hud-login) .cta-btn,
+:is(body.admin-page, body.hud-login) .wizard-btn.next-btn,
+:is(body.admin-page, body.hud-login) .admin-login-submit {
+    background: var(--hud-cyan) !important;
+    color: #041018 !important;
+    border: 1px solid var(--hud-cyan) !important;
+    border-radius: 0 !important;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 0 0 18px rgba(63, 216, 255, 0.35) !important;
+    clip-path: polygon(0 0, 92% 0, 100% 28%, 100% 100%, 8% 100%, 0 72%);
+}
+:is(body.admin-page, body.hud-login) .cta-btn:hover,
+:is(body.admin-page, body.hud-login) .wizard-btn.next-btn:hover {
+    background: #8fe9ff !important;
+    box-shadow: 0 0 28px rgba(63, 216, 255, 0.6) !important;
+}
+:is(body.admin-page, body.hud-login) .cta-btn.secondary,
+:is(body.admin-page, body.hud-login) .wizard-btn.prev-btn,
+:is(body.admin-page, body.hud-login) .admin-action-btn {
+    background: rgba(63, 216, 255, 0.06) !important;
+    color: var(--hud-cyan) !important;
+    border: 1px solid rgba(63, 216, 255, 0.55) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    font-family: var(--font-body);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+:is(body.admin-page, body.hud-login) .cta-btn.secondary:hover,
+:is(body.admin-page, body.hud-login) .wizard-btn.prev-btn:hover,
+:is(body.admin-page, body.hud-login) .admin-action-btn:hover { background: var(--hud-cyan-soft) !important; color: #ffffff !important; }
+:is(body.admin-page, body.hud-login) .admin-action-btn.danger,
+:is(body.admin-page, body.hud-login) .admin-action-btn[class*="delete"],
+:is(body.admin-page, body.hud-login) .admin-action-btn[class*="revoke"] {
+    color: var(--hud-red) !important;
+    border-color: rgba(255, 107, 139, 0.55) !important;
+}
+
+/* ---------- Stat cards ---------- */
+:is(body.admin-page, body.hud-login) .admin-stats-grid { gap: 18px; }
+:is(body.admin-page, body.hud-login) .admin-stat-card {
+    position: relative;
+    background: rgba(8, 24, 44, 0.86) !important;
+    border: 1px solid rgba(63, 216, 255, 0.4) !important;
+    border-radius: 0 !important;
+    clip-path: polygon(0 0, 88% 0, 100% 24%, 100% 100%, 0 100%);
+    padding: 20px 22px;
+}
+:is(body.admin-page, body.hud-login) .admin-stat-card::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 42%; height: 2px;
+    background: var(--hud-cyan);
+    box-shadow: 0 0 10px var(--hud-cyan);
+}
+:is(body.admin-page, body.hud-login) .admin-stat-card:nth-child(3) { border-color: rgba(255, 179, 71, 0.55) !important; }
+:is(body.admin-page, body.hud-login) .admin-stat-card:nth-child(3)::after { background: var(--hud-amber); box-shadow: 0 0 10px var(--hud-amber); }
+:is(body.admin-page, body.hud-login) .admin-stat-card:nth-child(4)::after { background: var(--hud-red); box-shadow: 0 0 10px var(--hud-red); }
+:is(body.admin-page, body.hud-login) .admin-stat-card:hover { box-shadow: 0 0 26px rgba(63, 216, 255, 0.22) !important; }
+:is(body.admin-page, body.hud-login) .admin-stat-label {
+    color: #8fd6f0 !important;
+    letter-spacing: 3px;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+:is(body.admin-page, body.hud-login) .admin-stat-value {
+    font-family: var(--font-display);
+    color: #ffffff !important;
+    font-size: 2.3rem;
+    text-shadow: 0 0 14px rgba(63, 216, 255, 0.45);
+}
+
+/* ---------- Charts ---------- */
+:is(body.admin-page, body.hud-login) .admin-chart-card {
+    background: rgba(8, 24, 44, 0.86) !important;
+    border: 1px solid rgba(63, 216, 255, 0.35) !important;
+    border-radius: 0 !important;
+}
+:is(body.admin-page, body.hud-login) .admin-chart-card h3 {
+    color: #ffffff !important;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* ---------- Side nav ---------- */
+:is(body.admin-page, body.hud-login) .admin-side-nav {
+    background: rgba(5, 16, 32, 0.9) !important;
+    border: 1px solid rgba(63, 216, 255, 0.3) !important;
+    border-radius: 0 !important;
+    padding: 14px 10px;
+}
+:is(body.admin-page, body.hud-login) .admin-tab-btn {
+    color: #b9e6f7 !important;
+    border-radius: 0 !important;
+    font-family: var(--font-body);
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    min-height: 44px;
+}
+:is(body.admin-page, body.hud-login) .admin-tab-btn:hover {
+    background: var(--hud-cyan-soft) !important;
+    border-color: rgba(63, 216, 255, 0.35) !important;
+    color: #ffffff !important;
+}
+:is(body.admin-page, body.hud-login) .admin-tab-btn.active {
+    background: var(--hud-cyan) !important;
+    border-color: var(--hud-cyan) !important;
+    color: #041018 !important;
+    box-shadow: 0 0 20px rgba(63, 216, 255, 0.45) !important;
+    clip-path: polygon(0 0, 94% 0, 100% 30%, 100% 100%, 6% 100%, 0 70%);
+    transform: none;
+}
+
+/* ---------- Panels, forms, tables ---------- */
+:is(body.admin-page, body.hud-login) .admin-panels {
+    background: rgba(8, 24, 44, 0.86) !important;
+    border: 1px solid rgba(63, 216, 255, 0.3) !important;
+    border-radius: 0 !important;
+}
+:is(body.admin-page, body.hud-login) .admin-panel-head { border-bottom-color: rgba(63, 216, 255, 0.22) !important; }
+:is(body.admin-page, body.hud-login) .admin-panel-head h2 {
+    color: #ffffff !important;
+    font-size: 1.15rem;
+    text-shadow: 0 0 12px rgba(63, 216, 255, 0.45);
+}
+:is(body.admin-page, body.hud-login) .admin-panel-head p,
+:is(body.admin-page, body.hud-login) .field-hint { color: #8fb8cc !important; }
+:is(body.admin-page, body.hud-login) .admin-split-block h3,
+:is(body.admin-page, body.hud-login) .admin-table-title { color: var(--hud-cyan) !important; letter-spacing: 3px; font-size: 0.85rem; }
+
+:is(body.admin-page, body.hud-login) .admin-form-grid,
+:is(body.admin-page, body.hud-login) .admin-split-block,
+:is(body.admin-page, body.hud-login) .student-filters {
+    background: rgba(4, 12, 24, 0.7) !important;
+    border: 1px solid rgba(63, 216, 255, 0.22) !important;
+    border-radius: 0 !important;
+}
+:is(body.admin-page, body.hud-login) .form-group label,
+:is(body.admin-page, body.hud-login) label { color: #a9d8ec; font-weight: 600; letter-spacing: 0.5px; }
+
+:is(body.admin-page, body.hud-login) input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+:is(body.admin-page, body.hud-login) select,
+:is(body.admin-page, body.hud-login) textarea {
+    background-color: rgba(4, 14, 28, 0.9) !important;
+    border: 1px solid rgba(63, 216, 255, 0.35) !important;
+    border-radius: 0 !important;
+    color: #e6f8ff !important;
+    font-family: var(--font-body);
+    font-size: 1rem;
+}
+:is(body.admin-page, body.hud-login) input::placeholder,
+:is(body.admin-page, body.hud-login) textarea::placeholder { color: rgba(169, 216, 236, 0.55) !important; }
+:is(body.admin-page, body.hud-login) input:focus,
+:is(body.admin-page, body.hud-login) select:focus,
+:is(body.admin-page, body.hud-login) textarea:focus {
+    outline: none !important;
+    border-color: var(--hud-cyan) !important;
+    box-shadow: 0 0 0 1px var(--hud-cyan), 0 0 16px rgba(63, 216, 255, 0.3) !important;
+}
+:is(body.admin-page, body.hud-login) select option { background: #0a1a30; color: #e6f8ff; }
+:is(body.admin-page, body.hud-login) input[type="checkbox"],
+:is(body.admin-page, body.hud-login) input[type="radio"] { accent-color: var(--hud-cyan); }
+:is(body.admin-page, body.hud-login) input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8) sepia(1) hue-rotate(160deg) saturate(4); }
+
+:is(body.admin-page, body.hud-login) .admin-table-wrap {
+    border: 1px solid rgba(63, 216, 255, 0.25) !important;
+    border-radius: 0 !important;
+}
+:is(body.admin-page, body.hud-login) .admin-table th {
+    background: rgba(63, 216, 255, 0.08) !important;
+    color: #8fd6f0 !important;
+    font-family: var(--font-body);
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(63, 216, 255, 0.3) !important;
+}
+:is(body.admin-page, body.hud-login) .admin-table td {
+    color: #d8f3ff !important;
+    border-bottom: 1px solid rgba(63, 216, 255, 0.1) !important;
+    font-size: 0.98rem;
+}
+:is(body.admin-page, body.hud-login) .admin-table tbody tr { transition: background 0.2s ease; }
+:is(body.admin-page, body.hud-login) .admin-table tbody tr:hover td { background: rgba(63, 216, 255, 0.06); }
+:is(body.admin-page, body.hud-login) .admin-table-empty { color: #8fb8cc !important; }
+:is(body.admin-page, body.hud-login) .admin-status-pill {
+    border-radius: 0 !important;
+    font-family: var(--font-body);
+    letter-spacing: 1px;
+}
+
+/* ---------- Modals & toasts ---------- */
+:is(body.admin-page, body.hud-login) .modal-card {
+    background: #071426 !important;
+    border: 1px solid rgba(63, 216, 255, 0.4) !important;
+    border-radius: 0 !important;
+    color: #d8f3ff !important;
+    box-shadow: 0 0 40px rgba(63, 216, 255, 0.18) !important;
+}
+:is(body.admin-page, body.hud-login) .modal-card h3 { color: #ffffff !important; }
+:is(body.admin-page, body.hud-login) .modal-close-btn { color: var(--hud-cyan) !important; }
+:is(body.admin-page, body.hud-login) .toast-modern {
+    background: #071426 !important;
+    color: #d8f3ff !important;
+    border-radius: 0 !important;
+    border: 1px solid rgba(63, 216, 255, 0.4) !important;
+    border-left: 4px solid var(--hud-cyan) !important;
+    font-family: var(--font-body);
+    font-size: 1rem;
+}
+
+/* =====================================================================
+   NEW ADMISSION ALERTS (admin-live.js)
+   ===================================================================== */
+.hud-bell-li { list-style: none; position: relative; }
+.hud-bell-btn {
+    position: relative;
+    width: 44px; height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(63, 216, 255, 0.06);
+    border: 1px solid rgba(63, 216, 255, 0.55);
+    color: #3fd8ff;
+    cursor: pointer;
+}
+.hud-bell-btn:hover { background: rgba(63, 216, 255, 0.16); }
+.hud-bell-btn.has-new { animation: hudBellPulse 1.6s ease-in-out infinite; }
+.hud-bell-badge {
+    position: absolute; top: -8px; right: -8px;
+    min-width: 22px; height: 22px; padding: 0 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #ffb347; color: #1a0e00;
+    font: 800 12px/1 "Orbitron", sans-serif;
+    box-shadow: 0 0 12px rgba(255, 179, 71, 0.8);
+}
+.hud-bell-badge[hidden] { display: none; }
+@keyframes hudBellPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 179, 71, 0.0); }
+    50% { box-shadow: 0 0 0 6px rgba(255, 179, 71, 0.25), 0 0 22px rgba(255, 179, 71, 0.5); }
+}
+
+.hud-feed {
+    position: absolute; top: calc(100% + 12px); right: 0;
+    width: min(380px, 92vw);
+    max-height: 70vh; overflow-y: auto;
+    background: #071426;
+    border: 1px solid rgba(63, 216, 255, 0.45);
+    box-shadow: 0 0 40px rgba(63, 216, 255, 0.2), 0 20px 50px rgba(0, 0, 0, 0.6);
+    z-index: 10060;
+    font-family: "Rajdhani", sans-serif;
+    color: #d8f3ff;
+}
+.hud-feed[hidden] { display: none; }
+.hud-feed-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(63, 216, 255, 0.25);
+    position: sticky; top: 0; background: #071426;
+}
+.hud-feed-title { font: 700 12px/1.2 "Orbitron", sans-serif; letter-spacing: 3px; color: #ffffff; }
+.hud-feed-link {
+    background: none; border: none; cursor: pointer;
+    color: #3fd8ff; font: 700 14px "Rajdhani", sans-serif; letter-spacing: 1px;
+    min-height: 32px;
+}
+.hud-feed-link:hover { color: #ffffff; text-decoration: underline; }
+.hud-feed-list { list-style: none; margin: 0; padding: 6px 0; }
+.hud-feed-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(63, 216, 255, 0.08);
+}
+.hud-feed-item.is-new { background: rgba(255, 179, 71, 0.07); }
+.hud-feed-dot {
+    flex: 0 0 10px; height: 10px; margin-top: 7px;
+    background: #3fd8ff; box-shadow: 0 0 8px #3fd8ff;
+}
+.hud-feed-item.is-new .hud-feed-dot { background: #ffb347; box-shadow: 0 0 10px #ffb347; }
+.hud-feed-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hud-feed-name { font-weight: 700; font-size: 16px; color: #ffffff; }
+.hud-feed-meta { font-size: 14px; color: #a9d8ec; overflow-wrap: anywhere; }
+.hud-feed-time { font-size: 12px; color: #8fb8cc; letter-spacing: 1px; }
+.hud-feed-empty { padding: 26px 16px; text-align: center; color: #8fb8cc; }
+.hud-feed-foot {
+    display: flex; justify-content: space-between; gap: 10px;
+    padding: 10px 16px; border-top: 1px solid rgba(63, 216, 255, 0.2);
+}
+
+.hud-alert-stack {
+    position: fixed; right: 20px; bottom: 20px;
+    display: flex; flex-direction: column; gap: 12px;
+    z-index: 10070;
+    width: min(380px, calc(100vw - 32px));
+}
+.hud-alert {
+    position: relative;
+    background: rgba(7, 20, 38, 0.97);
+    border: 1px solid rgba(255, 179, 71, 0.7);
+    box-shadow: 0 0 30px rgba(255, 179, 71, 0.25), 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 16px 18px 14px;
+    color: #d8f3ff;
+    font-family: "Rajdhani", sans-serif;
+    clip-path: polygon(0 0, 92% 0, 100% 14%, 100% 100%, 0 100%);
+    animation: hudAlertIn 0.45s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+.hud-alert.is-leaving { animation: hudAlertOut 0.35s ease forwards; }
+.hud-alert::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: #ffb347; box-shadow: 0 0 12px #ffb347;
+}
+.hud-alert-kicker {
+    display: flex; align-items: center; gap: 8px;
+    font: 700 11px/1 "Orbitron", sans-serif; letter-spacing: 3px; color: #ffcf8a;
+}
+.hud-alert-kicker span {
+    width: 8px; height: 8px; background: #ffb347; box-shadow: 0 0 10px #ffb347;
+    animation: hudBlink 1s steps(2, start) infinite;
+}
+.hud-alert-name { margin: 10px 0 2px; font: 700 20px/1.2 "Rajdhani", sans-serif; color: #ffffff; }
+.hud-alert-meta { font-size: 15px; color: #a9d8ec; }
+.hud-alert-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.hud-alert-actions button {
+    min-height: 40px; padding: 0 16px; cursor: pointer;
+    font: 700 12px "Orbitron", sans-serif; letter-spacing: 2px;
+}
+.hud-alert-view { background: #3fd8ff; color: #041018; border: 1px solid #3fd8ff; }
+.hud-alert-view:hover { background: #8fe9ff; }
+.hud-alert-dismiss { background: transparent; color: #a9d8ec; border: 1px solid rgba(63, 216, 255, 0.4); }
+.hud-alert-dismiss:hover { color: #ffffff; border-color: #3fd8ff; }
+@keyframes hudAlertIn { from { opacity: 0; transform: translateX(40px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes hudAlertOut { to { opacity: 0; transform: translateX(40px); } }
+@keyframes hudBlink { to { visibility: hidden; } }
+
+.hud-live-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 10px; padding: 5px 12px;
+    border: 1px solid rgba(125, 255, 178, 0.5);
+    color: #7dffb2; font: 700 12px "Rajdhani", sans-serif; letter-spacing: 2px;
+}
+.hud-live-pill::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: #7dffb2; box-shadow: 0 0 10px #7dffb2;
+    animation: hudBlink 1.4s steps(2, start) infinite;
+}
+.hud-live-pill.is-offline { color: #ffcf8a; border-color: rgba(255, 179, 71, 0.5); }
+.hud-live-pill.is-offline::before { background: #ffb347; box-shadow: 0 0 10px #ffb347; }
+
+:is(body.admin-page, body.hud-login) .admin-table tr.hud-row-new td { background: rgba(255, 179, 71, 0.1); }
+:is(body.admin-page, body.hud-login) .admin-table tr.hud-row-new td:first-child { box-shadow: inset 3px 0 0 #ffb347; }
+
+@media (prefers-reduced-motion: reduce) {
+    .hud-bell-btn.has-new, .hud-alert, .hud-alert-kicker span, .hud-live-pill::before { animation: none !important; }
+}
+@media (max-width: 760px) {
+    .hud-feed { position: fixed; top: 70px; right: 8px; left: 8px; width: auto; }
+    :is(body.admin-page, body.hud-login) .admin-stat-card { clip-path: none; }
+}
+
+/* ---------- Login screen ---------- */
+body.hud-login .admin-standalone-nav {
+    background: rgba(5, 14, 28, 0.92) !important;
+    border-bottom: 1px solid rgba(63, 216, 255, 0.35) !important;
+}
+body.hud-login .admin-standalone-nav .nav-logo,
+body.hud-login .admin-standalone-nav .nav-logo span { color: #ffffff !important; font-family: var(--font-display); letter-spacing: 2px; }
+body.hud-login .admin-standalone-nav .nav-logo span { color: var(--hud-cyan) !important; }
+body.hud-login .admin-login-page { background: transparent !important; }
+body.hud-login .admin-login-page .admin-login-card {
+    background: rgba(7, 20, 38, 0.95) !important;
+    border: 1px solid rgba(63, 216, 255, 0.45) !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 50px rgba(63, 216, 255, 0.18) !important;
+    clip-path: polygon(0 0, 92% 0, 100% 8%, 100% 100%, 8% 100%, 0 92%);
+}
+body.hud-login .admin-login-card h3 {
+    color: #ffffff !important;
+    text-transform: uppercase;
+    text-shadow: 0 0 14px rgba(63, 216, 255, 0.55);
+}
+body.hud-login .admin-login-subtitle { color: #8fb8cc !important; }
+body.hud-login .admin-login-submit { width: 100%; min-height: 48px; }
+
+/* ---------- Fit & contrast fixes ---------- */
+:is(body.admin-page, body.hud-login) .form-group label { color: #a9d8ec !important; opacity: 1 !important; }
+body.admin-page .admin-table tr.hud-row-new > td { background: rgba(255, 179, 71, 0.1) !important; }
+body.admin-page .admin-nav-tab-chip { padding: 6px 10px !important; font-size: 0.8rem !important; }
+body.admin-page .admin-nav-links { gap: 8px !important; flex-wrap: nowrap; }
+@media (max-width: 1560px) {
+    body.admin-page .admin-nav-email { display: none !important; }
+}
+@media (max-width: 1280px) {
+    body.admin-page .admin-nav-label { display: none !important; }
+}
+body.admin-page .main-navbar .nav-logout-btn.cta-btn {
+    background: transparent !important;
+    color: #ff8fa6 !important;
+    border: 1px solid rgba(255, 107, 139, 0.6) !important;
+    box-shadow: none !important;
+    clip-path: none;
+}
+body.admin-page .main-navbar .nav-logout-btn.cta-btn:hover { background: rgba(255, 107, 139, 0.14) !important; }
+@media (max-width: 768px) {
+    body.admin-page .main-navbar .nav-links,
+    body.admin-page .main-navbar .admin-nav-links {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-end;
+    }
+    body.admin-page .admin-dashboard { padding: 20px 14px 60px; }
+    body.admin-page .admin-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px; }
+    body.admin-page .admin-stat-card { padding: 16px 14px; }
+    body.admin-page .admin-stat-label { letter-spacing: 1.5px; font-size: 0.72rem; }
+    body.admin-page .admin-stat-value { font-size: 1.8rem; }
+}
+@media (max-width: 900px) {
+    body.admin-page .admin-shell { grid-template-columns: minmax(0, 1fr) !important; }
+    body.admin-page .admin-side-nav {
+        position: static !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        min-width: 0;
+        max-width: 100%;
+    }
+    body.admin-page .admin-tab-btn {
+        flex: 1 1 140px !important;
+        white-space: normal !important;
+        text-align: center !important;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+    body.admin-page .admin-panels { min-width: 0; padding: 18px 14px; }
+}
+@media (max-width: 768px) {
+    body.admin-page .main-navbar .nav-controls { min-width: 0; max-width: 100%; }
+    body.admin-page .main-navbar .admin-nav-links { width: auto !important; max-width: 100%; box-sizing: border-box; }
+}
+@media (max-width: 768px) {
+    body.admin-page .student-filters { grid-template-columns: minmax(0, 1fr) !important; box-sizing: border-box; max-width: 100%; }
+    body.admin-page .student-filters .form-group { min-width: 0; }
+    body.admin-page .main-navbar .nav-logout-btn.cta-btn { padding: 8px 12px !important; }
+}
+body.admin-page .admin-dash-header {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 4px 0 18px !important;
+    margin-top: 0 !important;
+}
+body.admin-page .admin-dash-header::before,
+body.admin-page .admin-dash-header::after { display: none !important; }
+body.hud-login .admin-login-card .modal-header,
+body.hud-login .admin-login-card .modal-body,
+body.hud-login .admin-login-body {
+    background: transparent !important;
+    border: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+body.hud-login .admin-login-card input {
+    background-color: rgba(4, 14, 28, 0.95) !important;
+}

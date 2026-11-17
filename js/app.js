@@ -4211,8 +4211,9 @@
                     lead.message ? escapeHtml(lead.message) : ''
                 ].filter(Boolean).join('<br>');
                 const alreadyEnrolled = String(lead.status || '').toLowerCase() === 'enrolled';
+                const rowNewClass = String(lead.status || 'new').toLowerCase() === 'new' ? ' class="hud-row-new"' : '';
 
-                return `<tr>
+                return `<tr data-lead-id="${escapeHtml(String(lead.id || ''))}"${rowNewClass}>
                     <td><strong>${escapeHtml(lead.full_name)}</strong></td>
                     <td>${contactBits || '—'}</td>
                     <td>${escapeHtml(lead.course_interest || '—')}</td>
@@ -4545,7 +4546,17 @@
 
         // Site now uses a single fixed dark navy + sky-blue theme (light/dark toggle removed).
         function getChartThemeColors() {
+            if (document.body && document.body.classList.contains('admin-page')) {
+                return {
+                    text: '#a9d8ec',
+                    grid: 'rgba(63,216,255,.12)',
+                    line: '#3fd8ff',
+                    lineGradStops: ['rgba(63,216,255,.35)', 'rgba(63,216,255,0)'],
+                    doughnut: ['#3fd8ff', '#ffb347', '#7dffb2', '#b18cff', '#ff6b8b', '#5b7a99', '#2fa8d8', '#ffe066']
+                };
+            }
             return {
+                line: '#2563eb',
                 text: '#dbeafe',
                 grid: 'rgba(219,234,254,.18)',
                 lineGradStops: ['rgba(37,99,235,.42)', 'rgba(37,99,235,0)'],
@@ -4575,7 +4586,7 @@
                 gradient.addColorStop(1, colors.lineGradStops[1]);
                 enrollmentChart = new Chart(enrollmentCanvas, {
                     type: 'line',
-                    data: { labels: months, datasets: [{ label: 'Enrollments', data: enrollments, borderColor: '#2563eb', backgroundColor: gradient, fill: true, tension: .35 }] },
+                    data: { labels: months, datasets: [{ label: 'Enrollments', data: enrollments, borderColor: colors.line, borderWidth: 3, pointBackgroundColor: '#041018', pointBorderColor: colors.line, backgroundColor: gradient, fill: true, tension: .35 }] },
                     options: { responsive: true, plugins: { legend: { labels: { color: colors.text } } }, scales: { x: { ticks: { color: colors.text }, grid: { color: colors.grid } }, y: { beginAtZero: true, ticks: { precision: 0, color: colors.text }, grid: { color: colors.grid } } } }
                 });
             }
@@ -4587,7 +4598,7 @@
                 }, {});
                 courseDistChart = new Chart(courseCanvas, {
                     type: 'doughnut',
-                    data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: colors.doughnut }] },
+                    data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: colors.doughnut, borderColor: document.body.classList.contains('admin-page') ? '#071426' : '#ffffff', borderWidth: 3 }] },
                     options: { responsive: true, plugins: { legend: { labels: { color: colors.text } } } }
                 });
             }
